@@ -1,0 +1,762 @@
+{
+  "name": "EasyJury Triage Workflow FINAL",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ffe4dfb1-0a46-4d37-a5d3-4da030fd5971",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "topics_config",
+          "mode": "list",
+          "cachedResultName": "topics_config"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        416,
+        0
+      ],
+      "id": "e15e5eeb-0357-4847-8aee-03fde8d8b5e7",
+      "name": "Load Topic Config",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO scan_runs (run_started_at, feed_query_params, notes)\nVALUES (now(), '{\"order\":\"-date\",\"per_page\":5,\"source\":\"atom.xml\",\"mode\":\"test\"}'::jsonb, 'Test-mode scan')\nRETURNING scan_run_id;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        208,
+        0
+      ],
+      "id": "da828ef1-d778-4c40-bd3e-d66f167b9ef8",
+      "name": "Open Scan Run",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "feed.entry",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        0
+      ],
+      "id": "8ad5274f-6a1b-4eee-8f47-9273e503516e",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "url": "https://caselaw.nationalarchives.gov.uk/atom.xml",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "order",
+              "value": "-date"
+            },
+            {
+              "name": "per_page",
+              "value": "50"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "3163dddd-c4ab-46a8-b5b7-0d61553cb74e",
+      "name": "Fetch Atom Feed",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        832,
+        0
+      ],
+      "id": "085bff77-bda9-47db-82ee-fcf630e6964b",
+      "name": "Parse Feed"
+    },
+    {
+      "parameters": {
+        "jsCode": "// One item per <entry>. Adjust key names if your XML node strips the tna:/atom prefixes.\nfunction asArray(x){ return x == null ? [] : (Array.isArray(x) ? x : [x]); }\nfunction linkHref(links, type){\n  const L = asArray(links);\n  const hit = L.find(l => (l?.type ?? l?.['@type'] ?? l?.['$']?.type) === type);\n  return hit?.href ?? hit?.['@href'] ?? hit?.['$']?.href ?? null;\n}\nconst out = [];\nfor (const item of $input.all()) {\n  const e = item.json;\n  const links = e.link;\n  const ids = asArray(e['tna:identifier'] ?? e.identifier);\n  const html_url = asArray(links).find(l =>\n      (l?.rel ?? l?.['@rel'] ?? l?.['$']?.rel) === 'alternate' &&\n      !(l?.type ?? l?.['@type'] ?? l?.['$']?.type)\n    )?.href\n    ?? asArray(links).find(l => (l?.rel ?? l?.['@rel'] ?? l?.['$']?.rel) === 'alternate')?.href\n    ?? null;\n  out.push({ json: {\n    document_uri:    e['tna:uri'] ?? e.uri ?? null,\n    entry_id:        e.id ?? null,\n    case_name:       e.title ?? null,\n    court:           e.author?.name ?? null,\n    published_at:    e.published ?? null,\n    feed_updated_at: e.updated ?? null,\n    content_hash:    e['tna:contenthash'] ?? e.contenthash ?? null,\n    html_url,\n    xml_url:         linkHref(links, 'application/akn+xml'),\n    pdf_url:         linkHref(links, 'application/pdf'),\n    identifiers: ids.map(i => ({\n      type:  i?.['@type'] ?? i?.type ?? i?.['$']?.type ?? null,\n      value: i?.['#'] ?? i?.['_'] ?? i?.value ?? (typeof i === 'string' ? i : null),\n      slug:  i?.['@slug'] ?? i?.slug ?? i?.['$']?.slug ?? null\n    })),\n    scan_run_id:    $('Open Scan Run').first().json.scan_run_id,\n    retrieved_at:   new Date().toISOString(),\n    feed_page:      1,\n    request_params: { order: '-date', per_page: 5, source: 'atom.xml' }\n  }});\n}\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        0
+      ],
+      "id": "46e4e3f7-9db6-486c-acbc-680fc2e54a18",
+      "name": "Normalise Feed Fields"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO cases (\n  document_uri, entry_id, case_name, court, published_at, feed_updated_at,\n  content_hash, html_url, xml_url, pdf_url, identifiers, scan_run_id,\n  retrieved_at, feed_page, request_params, case_status\n) VALUES (\n  $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12,$13,$14,$15::jsonb,'seen'\n)\nON CONFLICT (document_uri) DO UPDATE SET\n  entry_id=EXCLUDED.entry_id, case_name=EXCLUDED.case_name, court=EXCLUDED.court,\n  published_at=EXCLUDED.published_at, feed_updated_at=EXCLUDED.feed_updated_at,\n  content_hash=EXCLUDED.content_hash, html_url=EXCLUDED.html_url, xml_url=EXCLUDED.xml_url,\n  pdf_url=EXCLUDED.pdf_url, identifiers=EXCLUDED.identifiers, scan_run_id=EXCLUDED.scan_run_id,\n  retrieved_at=EXCLUDED.retrieved_at, feed_page=EXCLUDED.feed_page,\n  request_params=EXCLUDED.request_params, updated_at=now()\nRETURNING *;",
+        "options": {
+          "queryReplacement": "=={{ [ $json.document_uri, $json.entry_id, $json.case_name, $json.court, $json.published_at, $json.feed_updated_at, $json.content_hash, $json.html_url, $json.xml_url, $json.pdf_url, JSON.stringify($json.identifiers), $json.scan_run_id, $json.retrieved_at, $json.feed_page, JSON.stringify($json.request_params) ] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1552,
+        224
+      ],
+      "id": "af16e905-6bf0-4c09-918d-d7deaafffcc1",
+      "name": "Upsert Layer 0",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.xml_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1680,
+        0
+      ],
+      "id": "1f24fbb4-2be2-4aef-8ebe-aca77c3e05e8",
+      "name": "Fetch Judgment XML",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const out = [];\nconst items = $input.all();\n\nfunction attr(xml, tag, name) {\n  const m = xml.match(new RegExp(`<${tag}\\\\b[^>]*\\\\b${name}\\\\s*=\\\\s*\"([^\"]*)\"`, 'i'));\n  return m ? m[1] : null;\n}\nfunction el(xml, tag) {\n  const m = xml.match(new RegExp(`<${tag}\\\\b[^>]*>([\\\\s\\\\S]*?)</${tag}>`, 'i'));\n  return m ? m[1].replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim() : null;\n}\nfunction elAll(xml, tag) {\n  const re = new RegExp(`<${tag}\\\\b[^>]*>([\\\\s\\\\S]*?)</${tag}>`, 'gi');\n  const res = []; let m;\n  while ((m = re.exec(xml)) !== null) {\n    const v = m[1].replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();\n    if (v) res.push(v);\n  }\n  return res;\n}\nfunction frbrDate(xml, name) {\n  const m = xml.match(new RegExp(`<FRBRdate\\\\b[^>]*\\\\bname\\\\s*=\\\\s*\"${name}\"[^>]*>`, 'i'));\n  if (!m) return null;\n  const d = m[0].match(/\\bdate\\s*=\\s*\"([^\"]*)\"/i);\n  return d ? d[1] : null;\n}\n\nfor (let i = 0; i < items.length; i++) {\n  const xml = String(items[i].json.data ?? items[i].json.body ?? items[i].json.text ?? '');\n  const text = xml\n    .replace(/<[^>]+>/g, ' ')\n    .replace(/&#\\d+;|&[a-z]+;/gi, ' ')\n    .replace(/\\s+/g, ' ')\n    .trim();\n  const meta = $('Normalise Feed Fields').itemMatching(i).json;\n\n  // --- Layer 2a: deterministic LegalDocML (TNA AKN). Verify tag names against one real data.xml. ---\n  const neutral_citation    = el(xml, 'uk:cite') ?? el(xml, 'neutralCitation') ?? null;\n  const court_chamber       = el(xml, 'uk:court') ?? null;\n  const judgment_date       = frbrDate(xml, 'judgment');\n  const frbr_transform_date = frbrDate(xml, 'transform');\n  const uk_hash             = el(xml, 'uk:hash') ?? meta.content_hash ?? null;\n  const case_name_xml       = attr(xml, 'FRBRname', 'value');\n  const party_names         = elAll(xml, 'party');\n  const judge_names         = elAll(xml, 'judge');\n\n  out.push({ json: {\n    ...meta,\n    judgment_text: text,\n    fetch_status: text.length < 500 ? 'thin' : 'ok',\n    neutral_citation:  neutral_citation ?? 'unknown',\n    court_chamber:     court_chamber ?? 'unknown',\n    judgment_date,                 // null if absent (date column)\n    frbr_transform_date,           // null if absent\n    uk_hash,\n    case_name_xml:     case_name_xml ?? 'unknown',\n    party_names,                   // [] if none\n    judge_names                    // [] if none\n  }});\n}\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1904,
+        0
+      ],
+      "id": "9e582f34-7907-4780-8272-caad9e196adf",
+      "name": "Extract Judgment Text"
+    },
+    {
+      "parameters": {
+        "jsCode": "const TOPICS = $('Load Topic Config').all().map(r => {\n  const kw = typeof r.json.keywords === 'string' ? JSON.parse(r.json.keywords) : (r.json.keywords || {});\n  return {\n    topic_id: r.json.topic_id,\n    topic_name: r.json.topic_name,\n    conclusive: (kw.conclusive || []).map(s => s.toLowerCase()),\n    supporting: (kw.supporting || []).map(s => s.toLowerCase())\n  };\n});\nconst out = [];\nfor (const item of $input.all()) {\n  const c = item.json;\n  const hay = ` ${(c.judgment_text || '').toLowerCase()} `;\n  const hayTokens = new Set(hay.split(/[^a-z0-9]+/).filter(Boolean));\n  function termHits(term) {\n    const parts = term.split(/\\s+/).filter(Boolean);\n    if (parts.length === 1) return hayTokens.has(parts[0]) ? 1 : 0;\n    return parts.every(p => hayTokens.has(p)) ? 1 : 0;   // phrase: all words present, order-independent\n  }\n  const matched_topics = [], matched_terms = [];\n  for (const t of TOPICS) {\n    let conc = 0, supp = 0;\n    for (const term of t.conclusive) { const n = termHits(term); if (n>0){ conc+=n; matched_terms.push({topic_id:t.topic_id, topic_name:t.topic_name, term, kind:'conclusive', hits:n}); } }\n    for (const term of t.supporting) { const n = termHits(term); if (n>0){ supp+=n; matched_terms.push({topic_id:t.topic_id, topic_name:t.topic_name, term, kind:'supporting', hits:n}); } }\n    if (conc > 0) matched_topics.push({ topic_id:t.topic_id, topic_name:t.topic_name, conclusive_hits:conc, supporting_hits:supp });\n  }\n  const pass = matched_topics.length > 0;   // gate = presence of a conclusive term\n  out.push({ json: { ...c,\n    matched_topics, matched_terms,\n    filter_verdict: pass ? 'pass' : 'fail',\n    filter_reason: pass\n      ? `Matched conclusive terms in: ${matched_topics.map(m=>m.topic_name).join(', ')}`\n      : 'No conclusive topic terms found in full text',\n    criteria_evaluated: TOPICS.map(t => ({ topic_id:t.topic_id, topic_name:t.topic_name, conclusive_terms:t.conclusive.length, supporting_terms:t.supporting.length }))\n  }});\n}\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2112,
+        0
+      ],
+      "id": "6611440b-e71f-4e78-8e61-81fd8203ecea",
+      "name": "Keyword Scan"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2bf32c0c-ed64-4b81-ac4f-5069899031de",
+              "leftValue": "={{ $json.filter_verdict }}",
+              "rightValue": "pass",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "863f86d3-9c90-44de-9824-3a3d48d5d854",
+      "name": "Routing",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2336,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE cases\nSET case_status = 'rejected', rejection_reason = $2, future_relevance_flag = true, updated_at = now()\nWHERE document_uri = $1;",
+        "options": {
+          "queryReplacement": "={{ $json.document_uri }}, {{ $json.filter_reason }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2544,
+        176
+      ],
+      "id": "27ac88e7-053c-4a12-8b12-19e01365e33e",
+      "name": "Mark rejected",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO decision_events (document_uri, layer, decision, reason, actor, event_at, metadata)\nSELECT $1, 'surface_filter', $2, $3, 'automated filter', now(), $4::jsonb\nWHERE NOT EXISTS (\n  SELECT 1 FROM decision_events\n  WHERE document_uri = $1 AND layer = 'surface_filter' AND decision = $2\n);",
+        "options": {
+          "queryReplacement": "={{ $json.document_uri }}\n{{ $json.filter_verdict }}\n{{ $json.filter_reason }}\n{{ JSON.stringify({ matched_topics: $json.matched_topics, criteria: $json.criteria_evaluated }) }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2208,
+        208
+      ],
+      "id": "1fcb4338-68e5-46a7-b9e9-2ef608cd5d26",
+      "name": "Log decision event",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a relevance-scoring clerk for Justice Lens UK. You are given the text of ONE UK\njudgment and the topics it matched. Score how relevant it is, per component. Return STRICT\nJSON only — no markdown, no code fences, no prose outside the JSON object.\n\nRules:\n- Score each component exactly one of: \"high\" | \"medium\" | \"low\" | \"unknown\". Coarse only.\n  Never decimals, never numbers.\n- A component you cannot ground in the judgment text is \"unknown\", never \"low\".\n- Give paragraph or metadata evidence for every score.\n- Do NOT compute an overall score or tier. Score the components only.\n- Do NOT extract key facts or key quotes at this stage.\n- Do NOT give legal advice, predict future cases, infer a judge's motives, or rank/comment\n  on judges.\n- Do NOT resolve or expand anonymised or cipher names.\n\nReturn EXACTLY this object and nothing else:\n{\n  \"legal_issue_type\": \"short label of the legal question\",\n  \"topic_confirmed\": [\"housing\"],\n  \"keywords\": [\"possession order\",\"rent arrears\"],\n  \"components\": {\n    \"legal_issue_tag\": {\"score\":\"high|medium|low|unknown\",\"evidence\":\"...\"},\n    \"wider_relevance\": {\"score\":\"high|medium|low|unknown\",\"evidence\":\"...\"},\n    \"outcome_clarity\":  {\"score\":\"high|medium|low|unknown\",\"evidence\":\"...\"}\n  },\n  \"tier_reasoning\": \"one sentence, your own account not stated as fact\",\n  \"classification_confidence\": \"high|medium|low\"\n}\n\n=Case: {{ $json.case_name }}\nCourt: {{ $json.court }}\nMatched topics: {{ $json.matched_topics.map(m => m.topic_name).join(', ') }}\nJudgment text:\n{{ $json.judgment_text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2768,
+        -16
+      ],
+      "id": "75dae76c-c534-4568-8bd3-ffde42fcef81",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2768,
+        192
+      ],
+      "id": "d7faf174-1864-4f83-a5e0-f0f67606261b",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "SIRSfuk4Af8N4L7H",
+          "name": "OpenAI account 11"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const S = { high: 3, medium: 2, low: 1, unknown: 0 };\n\n// ~4 chars/token is the standard rough approximation for GPT models.\nconst estTokens = (s) => Math.ceil((String(s || '').length) / 4);\n// Fixed instruction block sent with every call (the static rules in the AI Agent node).\n// Measured once; judgment_text dominates, so a constant here is accurate enough.\nconst PROMPT_INSTRUCTION_TOKENS = 380;\n\nconst out = [];\nconst items = $input.all();\n\nfor (let i = 0; i < items.length; i++) {\n  const src = $('Keyword Scan').itemMatching(i).json;\n  const aiJson = items[i].json;\n\n  let pack;\n  try {\n    pack = JSON.parse(String(aiJson.output ?? aiJson.text ?? '')\n      .replace(/```json|```/g, '').trim());\n  } catch {\n    pack = { components:{}, keywords:[], legal_issue_type:'unknown',\n             tier_reasoning:'parse_error', classification_confidence:'low' };\n  }\n\n  const comp = pack.components || {};\n  const li = S[comp.legal_issue_tag?.score] ?? 0;\n  const wr = S[comp.wider_relevance?.score]  ?? 0;\n  const oc = S[comp.outcome_clarity?.score]  ?? 0;\n  const score = li + wr + oc;                        // 0..9\n\n  let tier = 'Red';\n  if (li >= 3 && (wr >= 2 || oc >= 2)) tier = 'Green';\n  else if (score >= 3)                 tier = 'Amber';\n  const tier_bucket = tier === 'Green' ? 'top_slice' : tier === 'Amber' ? 'watch' : 'drop';\n\n  const conf    = pack.classification_confidence || 'low';\n  const lowConf = (conf === 'low');\n  const highRel = (tier === 'Green');\n  const lowRel  = (tier === 'Red');\n\n  let routing_bucket;\n  if (highRel) {\n    routing_bucket = lowConf ? 'escalate' : 'fast_track';   // low conf promotes to priority check\n  } else if (lowRel) {\n    routing_bucket = lowConf ? 'quick_glance' : 'auto_drop';\n  } else {\n    routing_bucket = 'quick_glance';                        // Amber/watch: surface briefly\n  }\n\n  // tokens_used: use real usage if the agent surfaced it, otherwise estimate.\n  const usage = aiJson.tokenUsage || aiJson.usage ||\n                aiJson.response?.usage || aiJson.llmOutput?.tokenUsage || null;\n  let tokens_used = usage?.totalTokens ?? usage?.total_tokens ?? null;\n\n  if (tokens_used == null) {\n    const topicsStr = (src.matched_topics || []).map(m => m.topic_name).join(', ');\n    const promptTokens = PROMPT_INSTRUCTION_TOKENS\n      + estTokens(src.case_name) + estTokens(src.court)\n      + estTokens(topicsStr) + estTokens(src.judgment_text);\n    const completionTokens = estTokens(aiJson.output ?? aiJson.text ?? '');\n    tokens_used = promptTokens + completionTokens;\n  }\n\n  out.push({ json: {\n    ...src,\n    components: pack.components || {},\n    keywords: Array.isArray(pack.keywords) ? pack.keywords : [],\n    legal_issue_type: pack.legal_issue_type || 'unknown',\n    tier_reasoning: pack.tier_reasoning || '',\n    classification_confidence: conf,\n    aggregate_score: score,\n    relevance_tier: tier,          // Green|Amber|Red (text column)\n    tier_bucket: tier_bucket,      // top_slice|watch|drop (tier enum)\n    routing_bucket: routing_bucket,// §7 matrix (routing_bucket enum)\n    tokens_used: tokens_used,      // real if available, else estimate\n    confidence_signals: {\n      text_thin: src.fetch_status === 'thin',\n      classification_confidence: conf\n    },\n    model_version: 'gpt-5-mini',\n    prompt_version: 'relevance-2026-07-20-a'\n  }});\n}\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3120,
+        -16
+      ],
+      "id": "648773f8-f1c8-43af-bdf9-d5875f85ff70",
+      "name": "Parse & Aggregate Tier"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE cases SET case_status = 'triaged', updated_at = now() WHERE document_uri = $1;",
+        "options": {
+          "queryReplacement": "={{ $json.document_uri }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3552,
+        176
+      ],
+      "id": "342336d2-e6ec-47e4-90d2-673208e3527e",
+      "name": "Move case to triaged",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO relevance_assessments (\n  document_uri, topic_id, components, aggregate_score, weights_version,\n  tier, confidence_signals, assessed_at, model_version, prompt_version,\n  relevance_tier, tier_reasoning, keywords, legal_issue_type, tokens_used,\n  routing_bucket\n) VALUES (\n  $1, $2, $3::jsonb, $4, $5, $6, $7::jsonb, now(), $8, $9, $10, $11, $12, $13, $14, $15\n)\nON CONFLICT (document_uri, topic_id) DO UPDATE SET\n  components         = EXCLUDED.components,\n  aggregate_score    = EXCLUDED.aggregate_score,\n  weights_version    = EXCLUDED.weights_version,\n  tier               = EXCLUDED.tier,\n  confidence_signals = EXCLUDED.confidence_signals,\n  assessed_at        = now(),\n  model_version      = EXCLUDED.model_version,\n  prompt_version     = EXCLUDED.prompt_version,\n  relevance_tier     = EXCLUDED.relevance_tier,\n  tier_reasoning     = EXCLUDED.tier_reasoning,\n  keywords           = EXCLUDED.keywords,\n  legal_issue_type   = EXCLUDED.legal_issue_type,\n  tokens_used        = EXCLUDED.tokens_used,\n  routing_bucket     = EXCLUDED.routing_bucket;",
+        "options": {
+          "queryReplacement": "={{ [\n  $json.document_uri,\n  $json.topic_id,\n  JSON.stringify($json.components),\n  $json.aggregate_score,\n  $json.weights_version,\n  $json.tier_bucket,\n  JSON.stringify($json.confidence_signals),\n  $json.model_version,\n  $json.prompt_version,\n  $json.relevance_tier,\n  $json.tier_reasoning,\n  ($json.keywords || []).join(', '),\n  $json.legal_issue_type,\n  $json.tokens_used,\n  $json.routing_bucket\n] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3552,
+        -64
+      ],
+      "id": "6df6c41c-d48a-4c66-be57-231bc4817d6d",
+      "name": "Write relevance_assessments",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// weights_version per topic, from topics_config\nconst wByTopic = {};\nfor (const r of $('Load Topic Config').all()) {\n  wByTopic[r.json.topic_name] = r.json.weights_version ?? null;\n}\n\nconst out = [];\nfor (const item of $input.all()) {\n  const c = item.json;\n  for (const t of (c.matched_topics || [])) {\n    out.push({ json: {\n      document_uri:       c.document_uri,\n      topic_id:           Number(t.topic_id),                      // integer\n      components:         c.components || {},                       // object -> stringify at INSERT\n      aggregate_score:    Number(c.aggregate_score) || 0,           // integer\n      weights_version:    wByTopic[t.topic_name] ?? null,\n      tier_bucket:        c.tier_bucket,                           // top_slice|watch|drop -> tier enum\n      confidence_signals: c.confidence_signals || {},               // object -> stringify at INSERT\n      model_version:      c.model_version,\n      prompt_version:     c.prompt_version,\n      relevance_tier:     c.relevance_tier,                        // Green|Amber|Red (text)\n      tier_reasoning:     c.tier_reasoning || '',\n      keywords:           Array.isArray(c.keywords) ? c.keywords : [], // array -> join at INSERT\n      legal_issue_type:   c.legal_issue_type || 'unknown',\n      tokens_used:        (c.tokens_used == null ? null : Number(c.tokens_used)),\n      routing_bucket:     c.routing_bucket                         // §7 matrix -> routing_bucket enum\n    }});\n  }\n}\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3328,
+        -16
+      ],
+      "id": "2daa6adb-fc8d-4cb5-90c9-1b44584f976b",
+      "name": "Fan out per matched topic"
+    },
+    {
+      "parameters": {
+        "jsCode": "const out = [];\nfor (const item of $input.all()) {\n  const c = item.json;\n  for (const t of (c.matched_topics || [])) {\n    const terms = (c.matched_terms || []).filter(m => m.topic_id === t.topic_id);\n    out.push({ json: {\n      document_uri: c.document_uri,\n      topic_id: Number(t.topic_id),\n      matched_terms: terms\n    }});\n  }\n}\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2528,
+        -352
+      ],
+      "id": "db089f49-d663-4d27-afca-7b679dc0c783",
+      "name": "Fan case_topics"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO case_topics (document_uri, topic_id, matched_terms)\nVALUES ($1, $2, $3::text[])\nON CONFLICT (document_uri, topic_id) DO UPDATE SET matched_terms = EXCLUDED.matched_terms;",
+        "options": {
+          "queryReplacement": "=={{ [ $json.document_uri, $json.topic_id, '{' + ($json.matched_terms || []).map(m => '\"' + String(m.term).replace(/\"/g,'\\\\\"') + '\"').join(',') + '}' ] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2752,
+        -352
+      ],
+      "id": "5496f932-739f-44a5-8be2-e4f2ab6f4757",
+      "name": "Write case_topics",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE cases SET\n  filter_verdict = $2,\n  filter_reason = $3,\n  criteria_evaluated = $4::jsonb,\n  parties_from_title = $5,\n  parties_confidence = 'low',\n  court_tier = (SELECT court_tier FROM courts_reference WHERE court_name = cases.court),\n  updated_at = now()\nWHERE document_uri = $1;",
+        "options": {
+          "queryReplacement": "=={{ [  $json.document_uri,  $json.filter_verdict,  $json.filter_reason,  JSON.stringify($json.criteria_evaluated),  (($json.case_name || '').split(/\\s+v\\.?\\s+/i).map(s => s.trim()).filter(Boolean).join(' | '))] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2208,
+        -256
+      ],
+      "id": "faa77ee5-f6ed-47fc-8e08-9bed2c479453",
+      "name": "Persist Layer 1 fields on cases",
+      "credentials": {
+        "postgres": {
+          "id": "3AYiS9agbNbRsQfv",
+          "name": "Postgres account 7"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE cases SET\n  neutral_citation = $2,\n  court_chamber = $3,\n  judgment_date = $4,\n  case_name_xml = $5,\n  party_names = $6::jsonb,\n  judge_names = $7::jsonb,\n  frbr_transform_date = $8,\n  uk_hash = $9,\n  updated_at = now()\nWHERE document_uri = $1;",
+        "options": {
+          "queryReplacement": "=={{ [  $json.document_uri,  $json.neutral_citation,  $json.court_chamber,  $json.judgment_date,  $json.case_name_xml,  JSON.stringify($json.party_names),  JSON.stringify($json.judge_names),  $json.frbr_transform_date,  $json.uk_hash] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2720,
+        -176
+      ],
+      "id": "97c006fd-2152-40df-bfc1-9c995ab3d522",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO decision_events (document_uri, layer, decision, reason, actor, event_at, metadata)\nSELECT $1, 'ingest', 'ingested', NULL, 'system', $2::timestamptz, $3::jsonb\nWHERE NOT EXISTS (\n  SELECT 1 FROM decision_events\n  WHERE document_uri = $1 AND layer = 'ingest'\n);",
+        "options": {
+          "queryReplacement": "={{ $json.document_uri }}\n{{ $json.retrieved_at }}\n{{ JSON.stringify({ scan_run_id: $json.scan_run_id }) }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1760,
+        224
+      ],
+      "id": "1ef54af2-f4ad-4dfc-b7fe-53d9c8d192af",
+      "name": "Log ingest event",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Open Scan Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Open Scan Run": {
+      "main": [
+        [
+          {
+            "node": "Load Topic Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Topic Config": {
+      "main": [
+        [
+          {
+            "node": "Fetch Atom Feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Normalise Feed Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Atom Feed": {
+      "main": [
+        [
+          {
+            "node": "Parse Feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Feed": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise Feed Fields": {
+      "main": [
+        [
+          {
+            "node": "Upsert Layer 0",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Judgment XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Judgment XML": {
+      "main": [
+        [
+          {
+            "node": "Extract Judgment Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract Judgment Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Judgment Text": {
+      "main": [
+        [
+          {
+            "node": "Keyword Scan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keyword Scan": {
+      "main": [
+        [
+          {
+            "node": "Routing",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log decision event",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Persist Layer 1 fields on cases",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Routing": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fan case_topics",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse & Aggregate Tier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Aggregate Tier": {
+      "main": [
+        [
+          {
+            "node": "Fan out per matched topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write relevance_assessments": {
+      "main": [
+        []
+      ]
+    },
+    "Fan out per matched topic": {
+      "main": [
+        [
+          {
+            "node": "Write relevance_assessments",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Move case to triaged",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Layer 0": {
+      "main": [
+        [
+          {
+            "node": "Log ingest event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fan case_topics": {
+      "main": [
+        [
+          {
+            "node": "Write case_topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write case_topics": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a7f2e7af-f8f4-4464-93e0-9ffd0e27ea68",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0b3178866478233b39ccab85cc4a6c6bdfb86963810969ae561a567c52042c3a"
+  },
+  "nodeGroups": [],
+  "id": "KwsYaaS9KgM54gEn",
+  "tags": []
+}

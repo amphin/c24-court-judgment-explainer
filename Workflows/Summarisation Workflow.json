@@ -1,0 +1,609 @@
+{
+  "name": "Workflow 2 FINAL",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a legal analyst and audit clerk for Justice Lens UK. Given the raw text of ONE UK judgment\nand its metadata, produce a briefing pack as STRICT JSON and nothing else — no markdown fences,\nno prose outside the JSON.\nRules (non-negotiable):\n- Every factual field must cite paragraph numbers (e.g. ¶34). A field you cannot ground is the\n  string \"unknown\".\n- Quotes verbatim, each with its paragraph reference.\n- Do NOT give legal advice, predict future cases, infer a judge's motives, or rank/comment on judges.\n- Do NOT resolve or expand anonymised or cipher names (e.g. \"Re A (A Child)\").\n- If unsure, say so in extraction_confidence and lower it. Never hide uncertainty.\n- GLOSSARY: for each difficult_terms entry, check the GLOSSARY below. If the term appears there,\n  copy that definition into plain_english VERBATIM and set \"source\":\"glossary\". If it is NOT in\n  the glossary, write your own plain-English definition and set \"source\":\"check\". Never alter the\n  meaning of a term.\n\n=== GLOSSARY (approved definitions — use verbatim where a term matches) ===\nA\nAgent - someone who acts on behalf of someone else. For example, a conveyancer who acts on behalf of a couple buying a house.\n\nAgreement - where two parties reach consensus on a set of facts or course of action. For example, when a formerly married couple agree the terms of their divorce.\n\nAllegation - a claim made against someone, often without proof. Or a claim that someone has engaged in an unlawful act.\n\nAppointeeship - if a person is incapacitated and entitled to receive a retirement pension or other state benefits, the Department for Work and Pensions can choose an 'appointee' to receive those benefits on that person's behalf. The appointee can be a relative, friend or someone from the caring professions (such as the local authority social services department).\n\nAlternative dispute resolution - arbitration and mediation are alternative ways in which a dispute can be resolved, without going to court.\n\nAlternative business structures (ABS) - a firm that is managed, owned or controlled by a mix of lawyers and non-lawyers offering legal services. A non-lawyer is a person who is not authorised to carry out reserved legal activities.\n\nAncillary relief - an application for financial support, following the presentation of a petition for divorce, nullity or judicial separation. The term arises because the financial application is 'ancillary' to the divorce petition.\n\nArbitration - a way of seeking to resolve a dispute without going to court: a third party (the arbitrator) looks at both sides of the dispute and makes a decision as to how it should be resolved. Those involved may agree to be bound by the decision of the arbitrator.\n\nAssets - things owned by a person or organisation which usually have some value.\n\nAssociate - a person, usually employed by a law firm, who may be in charge of handling your case: often a lawyer, they are considered by the firm employing them to be a 'senior assistant'.\n\nAsylum - protection and immunity from extradition granted by a government to a political refugee from another country.\n\nAssured shorthold tenancy - assured shorthold tenancy is normally for six months. You have no right to stay at the end of the tenancy period agreed if your landlord has given you valid notice to leave.\n\nAssured tenancy - often used by public-sector landlords, assured tenancy gives you far greater rights to stay at the end of the tenancy period agreed.\n\nB\nBankrupt - the legal status of a person or organisation that is unable to repay debts owned to its creditors.\n\nBarrister - a lawyer regulated by the Bar Standards Board, often specialising in court room representation, drafting pleadings and expert legal opinions.\n\nBeneficiary - someone who is entitled to a benefit (eg under a will or trust).\n\nBequest - a gift of money or personal property made in someone's will.\n\nC\nChambers - a collection of independent, self-employed barristers who share employed clerks to administer work, and who share the expense of such clerks, office buildings and brand name.\n\nChattels - personal belongings that can be moved from one place to another.\n\nCivil law - the area of law covering disputes you may have with a person or an organisation.\n\nClaimant - a person making a claim.\n\nClient - someone who uses services provided by a lawyer or another legal professional.\n\nCohabitation contracts - these set out, in advance, what each member of the relationship expects of the other, both during the relationship and if they separate or one of them dies. They are 'honourable agreements', which means that not all clauses may be enforced by the courts, but they do limit disagreements and certainly provide some peace of mind.\n\nCompensation - recompense for loss, injury, or suffering.\n\nCompromise agreements - in a workplace dispute, if you can reach an agreement with your employer without going to a tribunal, this can be recorded in a 'compromise agreement'. This is a legal document which confirms the terms of the settlement you have agreed, in exchange for which you give up your legal claim against your employer. You may be able to get your employer to make a contribution to your legal costs as part of the agreement.\n\nConciliation - an alternative to alternative dispute resolution where the parties to a dispute use a conciliator, who meets with the parties both separately and together in an attempt to resolve their differences.\n\nConditional fee agreement (CFA) - if a claim on a CFA is unsuccessful the solicitor typically receives no payment for their work (No Win No Fee). If the claim is successful the solicitor claims a higher than normal fee to reflect their risk in taking the case on.\n\nConditions - requirements, restriction or permission added onto a document.\n\nContract - an agreement signed by two or more parties setting out the terms of an arrangement - for example, between a buyer and a seller in a property transaction.\n\nContinuing professional development (CPD) - the training that lawyers (and other professionals) are required to complete every year by the organisation regulating them. The Law Society's courses are available on Law Society Learning.\n\nConveyancing - the processes involved in buying, selling or remortgaging a property to transfer its legal title from one person to another.\n\nCosts lawyers - a lawyer who settles the legal costs of court cases, and who is regulated by the Association of Costs Lawyers.\n\nCounsel - a term used to describe a barrister.\n\nCreditor - a person or organisation to whom money is owed.\n\nCrown Prosecution Service (CPS) - the CPS is the organisation that prosecutes criminal cases investigated by the police in England and Wales.\n\nCrown prosecutor - a lawyer (generally a solicitor or a barrister) working for the Crown Prosecution Service.\n\nCrown courts - Crown courts deal with more serious cases. If you plead not guilty, your case will be heard in front of a judge and jury of 12 people, who will decide whether you are guilty or innocent, after they have heard all the evidence.\n\nCourt of protection - when someone is mentally incapable of making a particular decision at a particular time, and they haven't made a lasting power of attorney, and the decision isn't one that can be made on an informal basis, the matter can be referred to the Court of Protection. The court may either choose to make the decision itself on the person's behalf, or choose someone else, known as a 'deputy', to make the decision for them.\n\nCulpable - at fault or guilty of something.\n\nD\nDamages - an award, typically of money, paid to a person or organisation for loss or injury.\n\nDiscrimination - being treated unfairly or differently because of factors, such as disability, race, religion or belief, sex or sexuality.\n\nDisbursement - fees that are paid to organisations as required as part of legal services. For example, this could be a payment made by your lawyer to a local authority for property information when buying a house.\n\nDomicile - the place where a person has their permanent principal home to which they return or intend to return.\n\nE\nEstate - a person's property, entitlements or obligations.\n\nEvidence - that which tends to prove or disprove something.\n\nExecutor - someone named in a will who will carry out the directions of the will.\n\nExempt European lawyer (EEL) - a lawyer described by a European directive.\n\nF\nFee earners - employees of firms who deliver legal services.\n\nForfeited (to the Crown) - where someone dies intestate, or their will is invalid, their estate might be passed on to the state if relatives cannot be traced.\n\nFraud - intentional misrepresentation or concealment of an important fact upon which the victim is meant to rely, and in fact does rely, to the harm of the victim.\n\nFraudster - someone who commits fraud.\n\nG\nGrants of representation - this includes grants of probate (when there is a will) and grants of letters of administration (when there is no will). Often people just refer to probate even if there is no will.\n\nGrounds (legal) - the basis or foundation of an action.\n\nH\nHearing (legal) - a legal proceeding where the facts of a particular issue are looked at, and evidence is presented to help decide what the outcome should be.\n\nI\nIncorporated company - a type of private company with shares, but the shares cannot be traded publicly on the stock exchange. The shareholders have limited liability, which means that only the money invested in the company can be lost in case of insolvency.\n\nIndemnity - compensation for - or protection against - loss or damages that might be given by one person to another within a contract or otherwise.\n\nIndependent person - someone free from outside control or influence to act in the way they choose.\n\nInheritance - parts of someone's estate passing to someone on death.\n\nIn-house lawyer - lawyers working for organisations, such as banks or local authorities, to provide legal advice to the organisation.\n\nInsolvent - being unable to pay debts when they are due or where liabilities exceed assets.\n\nInstructing - authorising a lawyer to represent you. An instruction describes the type of work that you want them to do.\n\nIntegrity - acting with honesty and morality.\n\nIntellectual property (IP) - IP refers to ideas you create and legally own as a result of owning its copyright, trademark or patent. Examples of IP can include inventions, literary and artistic works, designs, symbols, names and images.\n\nInterest (legal) - a right, claim or privilege.\n\nInterim proceedings - in law, interim proceedings are hearings that take place between the first hearing and the final hearing.\n\nIntervention - when a regulator takes control of the papers and monies of a legal practice in order to protect the public.\n\nIntestate - any person who dies without leaving a will is said to have died intestate.\n\nJ\nJudge - a judge presides over court proceedings and hears all witnesses and evidence presented by the parties of the case, assesses the credibility and arguments of the parties, and then issues a ruling on the matter at hand, based on his or her interpretation of the law and his or her own personal judgment.\n\nJury - a sworn body of people in court who listen to the evidence in a trial in order to make an impartial decision (verdict). They tend to be found in criminal courts.\n\nK\nL\nLasting power of attorney - a lasting power of attorney goes one step further than an ordinary power of attorney, because it carries on, or 'lasts', even after you have become unable to manage your affairs, whether temporarily or permanently, or because of an illness, disability or accident. Lasting powers of attorney have now replaced enduring powers of attorney, although valid enduring powers of attorney made before 1 October 2007 can still be used.\n\nLaw firm - organisations that employ lawyers to provide legal advice and legal services.\n\nLaw Society of England and Wales - the Law Society is the organisation that represents, supports and promotes solicitors and their interests in England and Wales. Learn more about what we do on our About us pages.\n\nLawyer - a member of one of the following professions, entitled to practise as such:\n\n the profession of solicitor, barrister or advocate of the UK\n a profession whose members are authorised to carry on legal activities by an approved regulator other than the Solicitors Regulation Authority (SRA)\n an Establishment Directive profession other than a UK profession\n a legal profession which has been approved by the SRA for the purpose of recognised bodies in England and Wales, and\n any other regulated legal profession specified by the SRA for the purpose of this definition.\n Learn more about the different types of legal professionals\nLegal aid - government funding that can help people meet the costs of legal services they require, if they are eligible to receive it. It is also used to support legal assistance being provided at police stations where someone is arrested. You can find more information on legal aid at GOV.UK. The Law Society provides information about legal aid.\n\nLegal disciplinary practice (LDP) - a type of law firm where solicitors work alongside other types of lawyer, such as licensed conveyancers, and a restricted number of non-lawyers.\n\nLegal executive - a lawyer regulated by ILEX Professional Standards (IPS).\n\nLegal Ombudsman - an independent body set up to deal with complaints of poor service about lawyers and law firms of England and Wales. See the Legal Ombudsman website for more details.\n\nLegal professional privilege (LPP) - a protection that means information a client shares with his or her lawyer in confidence should never be revealed without the client's consent. LPP only applies between a client and his or her solicitor or barrister. It does not apply to other legal professionals.\n\nLegal services - services provided to clients, such as legal advice or representation in court.\n\nLiable - when someone is legally responsible for something.\n\nLiability - can mean something that is a hindrance or puts an individual or group at a disadvantage, or it can be something a person is responsible for.\n\nLicensed conveyancer - a lawyer specialising in property law and in some cases other areas of law, and regulated by the Council for Licensed Conveyancers.\n\nLimited liability partnership (LLP) - a business partnership in which some or all of the partners have limited liability in terms of their legal and financial obligations.\n\nLitigation - the contest process before a court.\n\nLitigant - a person involved in a lawsuit.\n\nLitigant in person - someone who represents themselves in court proceedings.\n\nM\nMagistrate - non-legal volunteer who hears cases in their community and administers the law, usually in a court that deals with minor offences and holds preliminary hearings for more serious ones.\n\nManager (of a law firm) - the SRA Code of Conduct 2011 defines this as:\n\n a member of an LLP\n a director of a company\n a partner in a partnership, or\n in relation to any other body, a member of its governing body.\n Magna Carta - Latin for great charter, signed by King John in 1215, it promised the protection of rights and access to justice. Claimed as the foundation to civil liberties and starting point for human rights.\nMatter - an application, information or an issue that needs to be considered by the relevant authority.\n\nMediation - mediation and arbitration are alternative ways in which a dispute can be resolved, without going to court.\n\nMisconduct - sometimes used to refer to the act in which a regulated professional, for example a solicitor, breaches a principle.\n\nMoney laundering - the process of concealing the source of illegally obtained money.\n\nMultinational - a business that operates in different countries.\n\nN\nNext-of-kin status - should your partner become ill or die, you may not be considered as their 'next-of-kin' for medical purposes unless you and your partner make a written agreement beforehand.\n\nNo win no fee - see 'Conditional Fee Agreements (CFAs)' above. If a claim on a CFA is unsuccessful, the solicitor receives no payment for their work under the CFA. If the claim is successful, the solicitor claims a higher than normal level of fees to reflect their risk in taking the case on a CFA.\n\nNotary - a lawyer regulated by the Faculty Office of the Archbishop of Canterbury.\n\nO\nObligation - a requirement to take a particular type of action, that may have a legal basis through a contract.\n\nOmission - a failure to perform a particular act where there was a duty or a legal requirement for that act to be carried out.\n\nOrdinary power of attorney - a legal way of giving someone else the power to manage your financial affairs when it is difficult for you to manage them yourself, perhaps because of a physical disability. Nobody can 'take' a power of attorney; it has to be 'donated' willingly. The donor decides who to appoint as their 'attorney', which will be someone they trust, such as a close relative, friend, or solicitor, and can cancel the arrangement at any time.\n\nOutcome(s) - this often means the final decision following an application or an investigation.\n\nOutcomes-focused regulation (OFR) - this is the SRA's approach to regulation. It allows firms to adopt their own approach, systems and management to best enable them to deliver a good service to client's needs and to support their business.\n\nOut-of-court settlement - an agreement between the two sides to settle the case privately before the court makes its decision.\n\nP\nParalegal - someone who supports lawyers in their work. Often paralegals have a law degree but do not have a practicing qualification.\n\nPartner - members of a firm who equally share ownership and liability.\n\nPartnership - two or more people working in business together.\n\nPatent attorney/agent - a lawyer regulated by the Intellectual Property Regulation Board.\n\nPersonal representatives (PRs) - Executors or administrators. If there is more than one personal representative, they must work together to decide matters between them. Disagreements between personal representatives can cause expensive delays.\n\nPractising certificate (PC) - a document issued to solicitors by the SRA which allows a solicitor to carry out certain legal work such as advocacy, litigation, probate and conveyancing. The SRA can impose conditions on a practising certificate, restricting the types of work that solicitors can do, and in what circumstances.\n\nProbate - a legal permission provided by a Probate Registry for someone to deal with someone else's estate after they die. A Probate Registry is an office where someone can be interviewed in order to be provided with a probate permission. To find your nearest registry or for more information, visit GOV.UK.\n\nPrima facie - Latin term used to describe something that appears on the face of it to be true.\n\nPro bono - Latin term for professional work undertaken voluntarily and without payment or at a reduced fee. Find out more about getting free legal advice.\n\nPublic interest - the overall welfare of the general public.\n\nPursuant - when something is related to, or comes out of, something else. For example, the powers of the SRA to regulate the legal profession stem from ('are pursuant to') various acts of parliament.\n\nQ\nR\nRecognised body/sole practitioner - according to the SRA Code of Conduct 2011, a recognised body is a body recognised by the SRA under section 9 of the Administration of Justice Act 1985. A recognised sole practitioner is a solicitor or Registered European lawyer (REL) authorised by the SRA under section 1B of the Solicitors Act 1974 to practise as a sole practitioner.\n\nRegistered European lawyer (REL) - a lawyer from a European state who registers with the SRA to practise law in England and Wales.\n\nRegistered Foreign lawyer (RFL) - a lawyer from overseas who registers with the SRA to practice law in England and Wales.\n\nRegulated individual - an individual who is authorised by, and is therefore regulated by, a regulatory body, like the SRA.\n\nRemunerate - to pay or reward someone for something they have done or a service they have provided, such as a company paying an employee.\n\nRevocation - when something is cancelled or taken away, such as the SRA revoking an individual's permission to practise as a solicitor.\n\nRights of audience - generally a right of a lawyer to appear and conduct proceedings in court on behalf of their client.\n\nRisk - the likelihood that a particular choice or action might lead to a loss or damage.\n\nRoll of solicitors- a list of all admitted solicitors held by the Law Society.\n\nS\nScam - any scheme that cheats people out of their property or money, or causes them damage for the benefit of others.\n\nSole practitioner - a lawyer who runs his or her own law firm without other partners, directors or members.\n\nSolicitor - a lawyer who has been admitted as a solicitor by the SRA and whose name appears on the roll of solicitors.\n\nSolicitors Regulation Authority (SRA) - the SRA regulates solicitors in England and Wales. Their purpose is to protect the public by ensuring that solicitors meet high standards, and by acting when risks are identified.\n\nStriking-off/struck-off - an example is where a solicitor is struck from the roll\n\nT\nTenancy - a contract between a tenant and their landlord. This contract can be written or verbal. In England and Wales there is no law to say that landlords have to provide a written tenancy agreement, but it is always a good idea to ask for one, even if the landlord is a friend or family member.\n\nThird party - a term used to describe someone other than the two sides in a particular situation. For example, it can be used in motor insurance policies to describe other people besides the person who is insured and the company that insures them.\n\nTrademark attorney - a lawyer regulated by the Intellectual Property Regulation Board.\n\nTrainee solicitor - a person completing their training requirements in a law firm before applying to become a solicitor.\n\nTransparent - being open and honest in a way that can be understood by others.\n\nTribunal - a person or group of people who collectively have authority to judge and/or determine claims or disputes.\n\nU\nUnadmitted - an individual who has not been admitted to the roll of solicitors.\n\nUnfair dismissal - an employee is entitled to make a claim for unfair dismissal once they have been employed for two years, full or part-time, and they are dismissed for any of these reasons.\n\nUnlawful - illegal or contrary to social convention.\n\nV\nW\nWill - a legal document that declares a person's wishes about the way their estate should be handled when they die.\n\nX\nY\nZ\n=== END GLOSSARY ===\n\nReturn exactly:\n{\n  \"key_facts\": \"...\", \"legal_issue\": \"...\", \"outcome\": \"...\",\n  \"disposal\": \"allowed|dismissed|remitted|other\",\n  \"key_quotes\": [{\"text\":\"...\",\"para_ref\":\"¶34\"}],\n  \"difficult_terms\": [{\"term\":\"...\",\"plain_english\":\"...\",\"source\":\"glossary|check\"}],\n  \"wider_relevance\": \"...\", \"topic_tags\": [\"housing\"],\n  \"procedural_posture\": \"first_instance|appeal\",\n  \"related_case_uri\": \"document uri of the case below, or unknown\",\n  \"agent_justification\": \"your own reasoning, as your account not fact\",\n  \"sensitivity_flags\": {\"medical\":false,\"minors\":false,\"notes\":\"...\"},\n  \"extraction_confidence\": \"high|medium|low\",\n  \"extraction_confidence_note\": \"why\"\n}\n=Case: {{ $('Extract Judgment Text').item.json.case_name }}\nCourt: {{ $('Extract Judgment Text').item.json.court }}\nNeutral citation: {{ $('Extract Judgment Text').item.json.neutral_citation }}\nJudgment text:\n{{ $('Extract Judgment Text').item.json.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        192
+      ],
+      "id": "8d31954c-8812-46f5-bfc4-0219353427f2",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        528,
+        416
+      ],
+      "id": "ffbf4993-cb4d-4c46-9871-77f6d7f4e36d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "SIRSfuk4Af8N4L7H",
+          "name": "OpenAI account 11"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ~4 chars/token is the standard rough approximation for GPT models.\nconst estTokens = (s) => Math.ceil((String(s || '').length) / 4);\n\n// Fixed instruction overhead of THIS agent's prompt (rules + full glossary + return schema).\n// It is baked into the AI Agent node and not readable here, so it is a constant.\n// CALIBRATE ONCE: on the first run where OpenAI surfaces real usage, compare and adjust.\nconst PROMPT_INSTRUCTION_TOKENS = 4200;\n\nreturn $input.all().map((item, i) => {\n  const src = $('Extract Judgment Text').itemMatching(i)?.json ?? {};\n  const raw = item.json.output ?? item.json.text ?? '';\n\n  let pack;\n  try { pack = JSON.parse(String(raw).replace(/```json|```/g, '').trim()); }\n  catch (e) { pack = { extraction_confidence: 'low', extraction_confidence_note: 'parse_error' }; }\n\n  // evidence rule: ungrounded core text fields become \"unknown\"\n  for (const k of ['key_facts','legal_issue','outcome','wider_relevance']) {\n    if (!pack[k] || /^\\s*$/.test(String(pack[k]))) pack[k] = 'unknown';\n  }\n\n  // disposal is a strict enum; the model sometimes appends a citation (\"dismissed (¶26)\").\n  // Extract the first valid enum word from wherever it appears; default to 'other'.\n  const d = String(pack.disposal || '').toLowerCase().match(/allowed|dismissed|remitted|other/);\n  pack.disposal              = d ? d[0] : 'other';\n\n  // procedural_posture is a strict enum; the model appends citations (\"appeal (¶1)\").\n  // Extract the first valid enum value; default to 'first_instance'.\n  const p = String(pack.procedural_posture || '').toLowerCase().match(/first_instance|appeal/);\n  pack.procedural_posture    = p ? p[0] : 'first_instance';\n\n  // scalar defaults (never null into the write)\n  pack.related_case_uri      = pack.related_case_uri      || null;\n  pack.agent_justification   = pack.agent_justification   || 'unknown';\n  pack.extraction_confidence = pack.extraction_confidence || 'low';\n  pack.extraction_confidence_note = pack.extraction_confidence_note || '';\n\n  // jsonb defaults (never undefined -> never a ::jsonb cast error)\n  pack.difficult_terms  = Array.isArray(pack.difficult_terms) ? pack.difficult_terms : [];\n  pack.topic_tags       = Array.isArray(pack.topic_tags)      ? pack.topic_tags      : [];\n  pack.sensitivity_flags = (pack.sensitivity_flags && typeof pack.sensitivity_flags === 'object')\n                           ? pack.sensitivity_flags : { medical:false, minors:false, notes:'' };\n\n  // verbatim quote check against the source body\n  const body = src.text || '';\n  pack.key_quotes = (Array.isArray(pack.key_quotes) ? pack.key_quotes : [])\n    .filter(q => q && q.text && body.includes(String(q.text).trim()));\n\n  // tokens_used: real usage if the agent surfaced it, otherwise estimate.\n  const usage = item.json.tokenUsage || item.json.usage ||\n                item.json.response?.usage || item.json.llmOutput?.tokenUsage || null;\n  let tokens_used = usage?.totalTokens ?? usage?.total_tokens ?? null;\n\n  if (tokens_used == null) {\n    const promptTokens = PROMPT_INSTRUCTION_TOKENS\n      + estTokens(src.case_name) + estTokens(src.court)\n      + estTokens(src.neutral_citation) + estTokens(src.text);\n    const completionTokens = estTokens(raw);\n    tokens_used = promptTokens + completionTokens;\n  }\n\n  return { json: {\n    document_uri: src.document_uri,\n    case_name: src.case_name,\n    ...pack,\n    model_version: 'gpt-5-mini',\n    prompt_version: 'briefing-2026-07-18-a',\n    tokens_used: tokens_used,   // real if available, else estimate\n    cost_gbp: null\n  }};\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        192
+      ],
+      "id": "ee32527a-4a22-4620-9797-bb1bfb082d45",
+      "name": "Parse and Guard"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE cases SET\n  key_facts = $2,\n  legal_issue = $3,\n  outcome = $4,\n  disposal = $5,\n  key_quotes = $6::jsonb,\n  difficult_terms = $7::jsonb,\n  wider_relevance = $8,\n  topic_tags = ARRAY(SELECT jsonb_array_elements_text($9::jsonb)),\n  procedural_posture = $10,\n  related_case_uri = $11,\n  agent_justification = $12,\n  sensitivity_flags = $13::jsonb,\n  extraction_confidence = $14,\n  extraction_confidence_note = $15,\n  model_version = $16,\n  prompt_version = $17,\n  tokens_used = $18,\n  cost_gbp = $19,\n  case_status = 'briefed',\n  updated_at = now()\nWHERE document_uri = $1;",
+        "options": {
+          "queryReplacement": "={{ [ $json.document_uri, $json.key_facts, $json.legal_issue, $json.outcome, $json.disposal, JSON.stringify($json.key_quotes), JSON.stringify($json.difficult_terms), $json.wider_relevance, JSON.stringify($json.topic_tags), $json.procedural_posture, $json.related_case_uri, $json.agent_justification, JSON.stringify($json.sensitivity_flags), $json.extraction_confidence, $json.extraction_confidence_note, $json.model_version, $json.prompt_version, $json.tokens_used, $json.cost_gbp ] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1024,
+        288
+      ],
+      "id": "5112f51d-09f6-4722-83e7-1130a81a5745",
+      "name": "Write briefing",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map((item, i) => {\n  const meta = $('Load selected cases').itemMatching(i)?.json ?? {};   // ← set to your B2 node's EXACT name\n  const xml  = item.json.xml ?? item.json.data ?? item.json.body ?? item.json.text ?? '';\n\n  const text = String(xml)\n    .replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')\n    .replace(/<[^>]+>/g, ' ')\n    .replace(/&#8217;/g, '\\u2019').replace(/&#8220;/g, '\\u201C').replace(/&#8221;/g, '\\u201D')\n    .replace(/&#8211;/g, '\\u2013').replace(/&#8230;/g, '\\u2026').replace(/&#160;/g, ' ')\n    .replace(/&#169;/g, '\\u00A9').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')\n    .replace(/\\s+/g, ' ')\n    .trim();\n\n  return { json: {\n    document_uri: meta.document_uri,\n    case_name: meta.case_name,\n    court: meta.court,\n    xml_url: meta.xml_url,\n    html_url: meta.html_url,\n    published_at: meta.published_at,\n    neutral_citation: meta.neutral_citation,\n    text,\n    fetch_status: text.length < 500 ? 'thin' : 'ok'\n  }};\n});"
+      },
+      "id": "df46db55-7ad1-455a-8a83-4beff00572c1",
+      "name": "Extract Judgment Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.xml_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "outputPropertyName": "xml"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        0,
+        192
+      ],
+      "id": "19c8ea0c-c7f4-4a75-8bdd-7a140dcb1efa",
+      "name": "Re-fetch judgment text",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT document_uri, case_name, court, xml_url, html_url,\n       published_at, neutral_citation\nFROM cases\nWHERE case_status = 'selected'\nORDER BY published_at DESC\nLIMIT 5;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -224,
+        96
+      ],
+      "id": "28f02621-b4e1-411e-b3cc-2ae96ffe203b",
+      "name": "Load selected cases",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"queued_for_briefing\", \"document_uri\": $('Webhook').item.json.body.document_uri } }}",
+        "options": {}
+      },
+      "id": "1ed1d980-7b69-4569-a0b4-b53a0cbe72a4",
+      "name": "Respond accepted",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -448,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE cases SET case_status = 'selected', updated_at = now() WHERE document_uri = $1;",
+        "options": {
+          "queryReplacement": "=={{ [ $('Normalise selection request').item.json.document_uri ] }}"
+        }
+      },
+      "id": "52ceb97f-7b5b-4c93-af26-be40df26fee6",
+      "name": "Flip to selected",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -672,
+        96
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO human_gate_actions\n  (document_uri, gate_type, actor, actor_channel, action_at, selection_decision)\nVALUES ($1, 'triage_selection', $2, 'tableau', now(), 'proceed');",
+        "options": {
+          "queryReplacement": "=={{ [ $('Normalise selection request').item.json.document_uri, $('Normalise selection request').item.json.actor ] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -896,
+        96
+      ],
+      "id": "8b546210-92c3-4c74-a078-d197701cc57c",
+      "name": "Log selection",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO human_gate_actions\n  (document_uri, gate_type, actor, actor_channel, action_at, rejection_reason)\nVALUES ($1, 'triage_selection', $2, 'form', now(), $3);",
+        "options": {
+          "queryReplacement": "=={{ [ $('Normalise selection request').item.json.document_uri, $('Normalise selection request').item.json.actor, $('Normalise selection request').item.json.rejection_reason ] }}"
+        }
+      },
+      "id": "4e954ec8-1c1d-416b-ae29-999cf7b2f502",
+      "name": "Log rejection",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -656,
+        384
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE cases SET case_status = 'rejected', rejection_reason = $2,\n  future_relevance_flag = true, updated_at = now()\nWHERE document_uri = $1;",
+        "options": {
+          "queryReplacement": "=={{ [ $('Normalise selection request').item.json.document_uri, $('Normalise selection request').item.json.rejection_reason ] }}"
+        }
+      },
+      "id": "228c89f3-c75d-4116-91fd-b7b78428d9f8",
+      "name": "Mark rejected",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -432,
+        304
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO decision_events\n  (document_uri, layer, decision, reason, actor, event_at, metadata)\nSELECT $1, 'ai briefing', 'briefed', $2, 'automated briefing', now(), $3::jsonb\nWHERE NOT EXISTS (\n  SELECT 1 FROM decision_events\n  WHERE document_uri = $1 AND layer = 'ai briefing' AND decision = 'briefed'\n);",
+        "options": {
+          "queryReplacement": "=={{ [ $json.document_uri, `Briefing generated; extraction_confidence = ${$json.extraction_confidence || 'unknown'}`, JSON.stringify({ model_version: $json.model_version, prompt_version: $json.prompt_version, extraction_confidence: $json.extraction_confidence, extraction_confidence_note: $json.extraction_confidence_note, tokens_used: $json.tokens_used }) ] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1024,
+        96
+      ],
+      "id": "d2ee1a95-79f1-4cd4-a554-604cc96cff48",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO decision_events\n  (document_uri, layer, decision, reason, actor, event_at, metadata)\nSELECT $1, 'selection', $2, $3, $4, now(), $5::jsonb\nWHERE NOT EXISTS (\n  SELECT 1 FROM decision_events\n  WHERE document_uri = $1 AND layer = 'selection' AND decision = $2\n);",
+        "options": {
+          "queryReplacement": "==={{ [ $('Normalise selection request').first().json.document_uri, 'proceed', 'Accepted at selection gate for briefing', ($('Normalise selection request').first().json.actor || 'unknown'), JSON.stringify({}) ] }}",
+          "largeNumbersOutput": "text"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ef8a0143-afdc-4e75-8f74-4db886ad95c6",
+      "name": "Log event",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO decision_events\n  (document_uri, layer, decision, reason, actor, event_at, metadata)\nSELECT $1, 'selection', 'rejected', $2, $3, now(), $4::jsonb\nWHERE NOT EXISTS (\n  SELECT 1 FROM decision_events\n  WHERE document_uri = $1 AND layer = 'selection' AND decision = 'rejected'\n);",
+        "options": {
+          "queryReplacement": "=={{ [ $('Normalise selection request').item.json.document_uri, $('Normalise selection request').item.json.rejection_reason, $('Normalise selection request').item.json.actor, JSON.stringify({ rejection_reason_code: $('Normalise selection request').item.json.rejection_reason_code }) ] }}",
+          "largeNumbersOutput": "text"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -432,
+        496
+      ],
+      "id": "bb8d54fc-e23c-4699-9ce2-0263d71467f8",
+      "name": "Log event — rejected",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const REASON_CODES = {\n  'Outside our configured topics': 'legal_issue_tag',\n  'Narrow application — affects few people': 'wider_relevance',\n  'Outcome unclear or changes nothing in practice': 'outcome',\n  'Facts too thin or technical to explain': 'facts',\n  'No usable quotable material': 'key_quotes',\n  'Court too low — limited reach': 'court_tier',\n  'Procedural or interim only — no substantive decision': 'procedural',\n  'Duplicate of a case already selected': 'duplicate',\n  'Sensitivity — distressing content or minors': 'sensitivity',\n  'Relevant but no capacity this week': 'capacity',\n  'Other — see notes': 'other'\n};\n\nconst j = $json;\nconst isForm = j.submittedAt !== undefined || j.formMode !== undefined;\n\nif (isForm) {\n  const label = String(j['Rejection reason'] || '').trim();\n  const notes = String(j['Notes'] || '').trim();\n  return [{ json: {\n    document_uri:          j.document_uri || null,\n    action:                'reject',\n    actor:                 j.actor || 'unknown',\n    rejection_reason_code: REASON_CODES[label] || 'other',\n    rejection_reason:      notes ? `${label} — ${notes}` : label,\n    edit_summary:          null\n  }}];\n}\n\nconst q = j.query || {};\nconst b = j.body  || {};\nconst r = Object.keys(b).length ? b : q;\n\nreturn [{ json: {\n  document_uri:          r.document_uri || null,\n  action:                String(r.action || '').toLowerCase().trim(),\n  actor:                 r.actor || 'unknown',\n  rejection_reason_code: r.rejection_reason_code || null,\n  rejection_reason:      r.rejection_reason || null,\n  edit_summary:          r.edit_summary || null\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -944,
+        384
+      ],
+      "id": "315e3353-9554-4386-8a50-87b5baa7ffd2",
+      "name": "Normalise selection request"
+    },
+    {
+      "parameters": {
+        "formTitle": "Reject at selection gate",
+        "formDescription": "Choose the reason this case should not proceed to briefing.",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "hiddenField",
+              "fieldName": "document_uri"
+            },
+            {
+              "fieldType": "hiddenField",
+              "fieldName": "actor"
+            },
+            {
+              "fieldLabel": "What is your reason for rejection",
+              "fieldType": "dropdown",
+              "fieldName": "Rejection reason",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Outside our configured topics"
+                  },
+                  {
+                    "option": "Narrow application — affects few people"
+                  },
+                  {
+                    "option": "Outcome unclear or changes nothing in practice"
+                  },
+                  {
+                    "option": "Facts too thin or technical to explain"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Notes",
+              "fieldType": "textarea"
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "options": {
+          "path": "justicelens-selection-reject"
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -1184,
+        384
+      ],
+      "id": "2be48fc5-f1e6-4475-8781-eb5a8dc04ee8",
+      "name": "Selection reject form",
+      "webhookId": "428e0024-1852-400c-ae4f-42dbc23727b1"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Rejected",
+        "completionMessage": "=={{ $('Normalise selection request').item.json.document_uri }} — {{ $('Normalise selection request').item.json.rejection_reason }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        -208,
+        304
+      ],
+      "id": "24f3b4f6-8cec-410d-b5a7-dda88dec452d",
+      "name": "Form done — rejected",
+      "webhookId": "40d311b6-91c4-4c4c-bba4-4bb4896c588d"
+    },
+    {
+      "parameters": {
+        "path": "justicelens/select/1",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1168,
+        96
+      ],
+      "id": "6b9bd3cd-709a-4cd7-bd58-babaf475f292",
+      "name": "Webhook",
+      "webhookId": "ca8ba24c-d281-43aa-9ad0-2237d33c6d8b"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse and Guard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse and Guard": {
+      "main": [
+        [
+          {
+            "node": "Write briefing",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Judgment Text": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Re-fetch judgment text": {
+      "main": [
+        [
+          {
+            "node": "Extract Judgment Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load selected cases": {
+      "main": [
+        [
+          {
+            "node": "Re-fetch judgment text",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond accepted": {
+      "main": [
+        [
+          {
+            "node": "Load selected cases",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flip to selected": {
+      "main": [
+        [
+          {
+            "node": "Respond accepted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log selection": {
+      "main": [
+        [
+          {
+            "node": "Flip to selected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log rejection": {
+      "main": [
+        [
+          {
+            "node": "Mark rejected",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log event — rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark rejected": {
+      "main": [
+        [
+          {
+            "node": "Form done — rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise selection request": {
+      "main": [
+        [
+          {
+            "node": "Log rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Selection reject form": {
+      "main": [
+        [
+          {
+            "node": "Normalise selection request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form done — rejected": {
+      "main": [
+        []
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Log selection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "8abeefcf-eb91-4c0e-bcde-e0d2089c0d82",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": ""
+  },
+  "nodeGroups": [],
+  "id": "NzQ6KCwq9wUAIpjh",
+  "tags": []
+}

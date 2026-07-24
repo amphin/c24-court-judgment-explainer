@@ -1,0 +1,828 @@
+{
+  "name": "Workflow 3 FINAL",
+  "nodes": [
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "approved",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "b5f16386-f4c3-472d-b72e-b4e9493e6ae7"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "9d023a56-7f43-4c58-a3a9-42cd93b4d158",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "edited",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "52656de2-d63e-45ec-a81e-5d558fd79030",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO human_gate_actions\n  (document_uri, gate_type, actor, actor_channel, action_at, brief_approval_decision, edit_summary)\nVALUES ($1, 'staff_review', $2, 'tableau', now(), $3, $4);",
+        "options": {
+          "queryReplacement": "=={{ [ $('Normalise staff request').item.json.document_uri, $('Normalise staff request').item.json.actor, $('Normalise staff request').item.json.action, $('Normalise staff request').item.json.edit_summary ] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        176,
+        -192
+      ],
+      "id": "ebe740be-3c4b-461d-a129-d5c2f14ed4b4",
+      "name": "Log brief approval",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE cases SET case_status = 'senior_review', updated_at = now()\nWHERE document_uri = $1 AND case_status = 'briefed';",
+        "options": {
+          "queryReplacement": "=={{ [ $('Normalise staff request').item.json.document_uri ] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        400,
+        -192
+      ],
+      "id": "16cf0765-fca5-414b-9e26-6f2aeccf0898",
+      "name": "Flip to Senior review",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "==<html><body style=\"font-family:system-ui;padding:2rem;text-align:center\"><h2 style=\"color:#1a7f37\">✓ Advanced to senior review</h2><p style=\"color:#555\">{{ $('Normalise staff request').item.json.document_uri }}</p></body></html>",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type: text/html",
+                "value": "text/html"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        608,
+        -192
+      ],
+      "id": "9b55b46a-e4cb-4da9-9965-8d52c9656b70",
+      "name": "Respond advanced"
+    },
+    {
+      "parameters": {
+        "path": "justicelens/staff-review/1",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -576,
+        16
+      ],
+      "id": "4a216fba-3172-4be0-a414-7c080fa7eb15",
+      "name": "Staff review webhook",
+      "webhookId": "d1aa25a0-656e-4e65-967b-433faf0a01f8"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO human_gate_actions\n  (document_uri, gate_type, actor, actor_channel, action_at, brief_approval_decision, rejection_reason)\nVALUES ($1, 'staff_review', $2, 'tableau', now(), 'rejected', $3);",
+        "options": {
+          "queryReplacement": "=={{ [ $('Normalise staff request').item.json.document_uri, $('Normalise staff request').item.json.actor, $('Normalise staff request').item.json.rejection_reason ] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -352,
+        192
+      ],
+      "id": "46e3942f-57ad-49ad-b365-bc6609cd7497",
+      "name": "Log brief rejection",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE cases SET case_status = 'rejected_at_ai_summary', rejection_reason = $2,\n  future_relevance_flag = true, updated_at = now()\nWHERE document_uri = $1;",
+        "options": {
+          "queryReplacement": "=={{ [ $('Normalise staff request').item.json.document_uri, $('Normalise staff request').item.json.rejection_reason ] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -112,
+        192
+      ],
+      "id": "2e4b0ded-bacd-45e9-8b9d-48f179c022b5",
+      "name": "Mark rejected at AI summary",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "approved",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "b5f16386-f4c3-472d-b72e-b4e9493e6ae7"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "ffd164f1-02e2-4cd5-88cd-1e4b6aeb873b",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "rejected",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -240,
+        736
+      ],
+      "id": "bae11394-a020-4d0e-901a-3bda5e444232",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO human_gate_actions\n  (document_uri, gate_type, actor, actor_channel, action_at, senior_review_decision)\nVALUES ($1, 'senior_review', $2, 'tableau', now(), 'approved');",
+        "options": {
+          "queryReplacement": "=={{ [ $('Normalise senior request').item.json.document_uri, $('Normalise senior request').item.json.actor ] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -16,
+        640
+      ],
+      "id": "f0d1a0e4-5131-477b-b610-bcd6744a64b5",
+      "name": "Log senior approval",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "==<html><body style=\"font-family:system-ui;padding:2rem;text-align:center\"><h2 style=\"color:#1a7f37\">✓ Published</h2><p style=\"color:#555\">{{ $('Normalise senior request').item.json.document_uri }}</p></body></html>",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        384,
+        640
+      ],
+      "id": "a0a7afa2-32de-4729-a395-c69f5e19c00d",
+      "name": "Respond published"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO human_gate_actions\n  (document_uri, gate_type, actor, actor_channel, action_at, senior_review_decision, rejection_reason)\nVALUES ($1, 'senior_review', $2, 'tableau', now(), 'rejected', $3);",
+        "options": {
+          "queryReplacement": "=={{ [ $('Normalise senior request').item.json.document_uri, $('Normalise senior request').item.json.actor, $('Normalise senior request').item.json.rejection_reason ] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -64,
+        832
+      ],
+      "id": "431cb2c4-f8a0-4eb8-88bd-67e0c1124c87",
+      "name": "Log senior rejection",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE cases SET case_status = 'published', updated_at = now()\nWHERE document_uri = $1 AND case_status = 'senior_review';",
+        "options": {
+          "queryReplacement": "=={{ [ $('Normalise senior request').item.json.document_uri ] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        192,
+        640
+      ],
+      "id": "4f21c329-abcd-45de-ba9d-09cba5a57f35",
+      "name": "Flip to Published",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE cases SET case_status = 'rejected_by_senior_reviewer', rejection_reason = $2,\n  future_relevance_flag = true, updated_at = now()\nWHERE document_uri = $1;",
+        "options": {
+          "queryReplacement": "=={{ [ $('Normalise senior request').item.json.document_uri, $('Normalise senior request').item.json.rejection_reason ] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        144,
+        832
+      ],
+      "id": "f660967c-3dfc-416a-9deb-51b9b73c520c",
+      "name": "Mark rejected by senior",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "==<html><body style=\"font-family:system-ui;padding:2rem;text-align:center\"><h2 style=\"color:#b91c1c\">✗ Rejected by senior reviewer</h2><p style=\"color:#555\">{{ $('Normalise senior request').item.json.document_uri }}</p><p style=\"color:#777;font-size:.9rem\">{{ $('Normalise senior request').item.json.rejection_reason }}</p></body></html>",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        336,
+        832
+      ],
+      "id": "58e67ba7-df86-47c0-9714-5537dc4f9c54",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "path": "justicelens/senior-review/1",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -704,
+        736
+      ],
+      "id": "1cdfd6da-36a4-476b-af21-f931392823db",
+      "name": "Senior review webhook",
+      "webhookId": "65eb3480-5c8a-44b0-9fa5-1f54ddedf4a2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const REASON_CODES = {\n  'Legal accuracy — misstates the judgment': 'accuracy',\n  'Mistranslation — plain English changes the meaning': 'mistranslation',\n  'Unsupported claim — no paragraph reference': 'groundedness',\n  'Quote not verbatim or wrongly attributed': 'quote_integrity',\n  'Strays into legal advice': 'legal_advice_risk',\n  'Predicts an outcome or infers motive': 'guardrail_breach',\n  'Tone or sensitivity unsuitable': 'tone',\n  'Missing or broken source links': 'traceability',\n  'Extraction confidence too low to publish': 'low_confidence',\n  'Wrong case selected at triage': 'wrong_selection',\n  'Other — see notes': 'other'\n};\n\nconst j = $json;\nconst isForm = j.submittedAt !== undefined || j.formMode !== undefined;\n\nif (isForm) {\n  const label = String(j['Rejection reason'] || '').trim();\n  const notes = String(j['Notes'] || '').trim();\n  return [{ json: {\n    document_uri:          j.document_uri || null,\n    action:                'rejected',\n    actor:                 j.actor || 'unknown',\n    rejection_reason_code: REASON_CODES[label] || 'other',\n    rejection_reason:      notes ? `${label} — ${notes}` : label,\n    edit_summary:          null\n  }}];\n}\n\nconst q = j.query || {};\nconst b = j.body  || {};\nconst r = Object.keys(b).length ? b : q;\n\nreturn [{ json: {\n  document_uri:          r.document_uri || null,\n  action:                String(r.action || '').toLowerCase().trim(),\n  actor:                 r.actor || 'unknown',\n  rejection_reason_code: r.rejection_reason_code || null,\n  rejection_reason:      r.rejection_reason || null,\n  edit_summary:          r.edit_summary || null\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -368,
+        16
+      ],
+      "id": "71a75d58-3895-43a8-aae2-cca15940ecdd",
+      "name": "Normalise staff request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const q = $json.query || {};\nconst b = $json.body  || {};\nconst r = Object.keys(b).length ? b : q;\n\nreturn [{ json: {\n  document_uri:     r.document_uri     || null,\n  action:           String(r.action || '').toLowerCase().trim(),\n  actor:            r.actor            || 'unknown',\n  rejection_reason: r.rejection_reason || null,\n  edit_summary:     r.edit_summary     || null\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -416,
+        736
+      ],
+      "id": "6f2d4b86-4f2e-4016-b7dd-b492f39b4bd9",
+      "name": "Normalise senior request"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT document_uri, case_name, key_facts, legal_issue, outcome, disposal,\n       wider_relevance, procedural_posture,\n       key_quotes::text      AS key_quotes,\n       difficult_terms::text AS difficult_terms\nFROM cases\nWHERE document_uri = $1;",
+        "options": {
+          "queryReplacement": "=={{ [ $('Normalise staff request').item.json.document_uri ] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        176,
+        0
+      ],
+      "id": "db860f0a-31ff-4083-913b-ea742f1ff415",
+      "name": "Load case for edit",
+      "credentials": {
+        "postgres": {
+          "id": "wwdJD5WMlBZh7ZgP",
+          "name": "Postgres account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const c = $json;\nconst LIMIT = 2900;\nconst MARK  = '\\n\\n[TRUNCATED — leave unchanged]';\n\nconst clip = (v) => {\n  const s = v == null ? '' : String(v);\n  return s.length > LIMIT ? s.slice(0, LIMIT) + MARK : s;\n};\n\nconst fields = [\n  ['key_facts',          'Key facts',                                      true],\n  ['legal_issue',        'Legal issue',                                    true],\n  ['outcome',            'Outcome',                                        true],\n  ['disposal',           'Disposal (allowed|dismissed|remitted|other)',    false],\n  ['wider_relevance',    'Wider relevance',                                true],\n  ['procedural_posture', 'Procedural posture (first_instance|appeal)',     false],\n  ['key_quotes',         'Key quotes (JSON array)',                        true],\n  ['difficult_terms',    'Difficult terms (JSON array)',                   true]\n];\n\nconst blocks = [\n  { type: 'section', text: { type: 'mrkdwn',\n      text: `*Edit AI briefing*\\n${c.case_name || ''}\\n\\`${c.document_uri}\\`` } },\n  { type: 'divider' }\n];\n\nfor (const [key, label, multi] of fields) {\n  const el = { type: 'plain_text_input', action_id: 'value', multiline: multi };\n  const v = clip(c[key]);\n  if (v !== '') el.initial_value = v;          // Slack rejects an empty initial_value\n  blocks.push({\n    type: 'input',\n    block_id: key,\n    optional: true,\n    label: { type: 'plain_text', text: label },\n    element: el\n  });\n}\n\nblocks.push({\n  type: 'input',\n  block_id: 'edit_summary',\n  optional: true,\n  label: { type: 'plain_text', text: 'Edit summary' },\n  element: { type: 'plain_text_input', action_id: 'value', multiline: true }\n});\n\nblocks.push({\n  type: 'actions',\n  block_id: 'submit',\n  elements: [{\n    type: 'button',\n    action_id: 'save_brief_edits',\n    style: 'primary',\n    text: { type: 'plain_text', text: 'Save changes' },\n    value: JSON.stringify({\n      document_uri: c.document_uri,\n      actor: $('Normalise staff request').first().json.actor\n    })\n  }]\n});\n\nreturn { json: { blocksJson: JSON.stringify(blocks) } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        0
+      ],
+      "id": "7d798780-45f5-45db-9127-9301509a1f52",
+      "name": "Build Slack edit form"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BJJJZ8Y1F",
+          "mode": "list",
+          "cachedResultName": "easyjury-staff-review"
+        },
+        "messageType": "block",
+        "blocksUi": "=={{ $json.blocksJson }}",
+        "text": "Briefing edit requested",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        592,
+        0
+      ],
+      "id": "4150bc78-590b-4c8a-82ff-70d3caa99975",
+      "name": "Send a message",
+      "webhookId": "71277ae9-cb30-41f1-91aa-52cd823ef80e",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "59CTkdho942QIMhH",
+          "name": "Slack account 12"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "==<html><body style=\"font-family:system-ui;padding:2rem;text-align:center\"><h2 style=\"color:#b45309\">✎ Sent to Slack for editing</h2><p style=\"color:#555\">{{ $('Normalise staff request').item.json.document_uri }}</p></body></html>",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        800,
+        0
+      ],
+      "id": "3294e28f-b8ad-411a-af2e-3c660affa8df",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "formTitle": "Reject at staff review",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "hiddenField",
+              "fieldName": "document_uri"
+            },
+            {
+              "fieldType": "hiddenField",
+              "fieldName": "actor"
+            },
+            {
+              "fieldLabel": "Notes",
+              "fieldType": "textarea",
+              "fieldName": "Notes"
+            },
+            {
+              "fieldLabel": "Rejection Reason",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Legal accuracy"
+                  },
+                  {
+                    "option": "Mistranslation"
+                  },
+                  {
+                    "option": "Unsupported claim"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "options": {
+          "path": "justicelens-staff-reject"
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -560,
+        192
+      ],
+      "id": "6b9168c8-d48c-408b-b2c3-f3c94959a303",
+      "name": "Staff review reject form",
+      "webhookId": "31671e87-8a49-4b11-9ec1-bae143085344"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Rejected",
+        "completionMessage": "=={{ $('Normalise staff request').item.json.document_uri }} — {{ $('Normalise staff request').item.json.rejection_reason }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        112,
+        192
+      ],
+      "id": "60ca3122-4ce9-4872-a587-3aeeee9622c5",
+      "name": "Form done — rejected",
+      "webhookId": "60c599c6-6e45-421a-aabf-ae452208156a"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Log brief approval",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Load case for edit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log brief approval": {
+      "main": [
+        [
+          {
+            "node": "Flip to Senior review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flip to Senior review": {
+      "main": [
+        [
+          {
+            "node": "Respond advanced",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Staff review webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalise staff request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log brief rejection": {
+      "main": [
+        [
+          {
+            "node": "Mark rejected at AI summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark rejected at AI summary": {
+      "main": [
+        [
+          {
+            "node": "Form done — rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Log senior approval",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log senior rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log senior approval": {
+      "main": [
+        [
+          {
+            "node": "Flip to Published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log senior rejection": {
+      "main": [
+        [
+          {
+            "node": "Mark rejected by senior",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flip to Published": {
+      "main": [
+        [
+          {
+            "node": "Respond published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark rejected by senior": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Senior review webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalise senior request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise staff request": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise senior request": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load case for edit": {
+      "main": [
+        [
+          {
+            "node": "Build Slack edit form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Slack edit form": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Staff review reject form": {
+      "main": [
+        [
+          {
+            "node": "Log brief rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "b1c620b5-09d8-4ee7-bb6f-62b901a979c3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": ""
+  },
+  "nodeGroups": [],
+  "id": "CbjRm4jPSC2tTY8P",
+  "tags": []
+}

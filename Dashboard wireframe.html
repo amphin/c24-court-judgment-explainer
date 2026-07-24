@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Desk Portal — Wireframe</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<style>
+  :root {
+    --navy: #1F4E78; --navy-dark: #14344F; --accent: #185FA5; --accent-bg: #E6F1FB;
+    --border: #DCDFE4; --border-strong: #B9BFC8; --surface-0: #F4F5F7; --surface-1: #F1F3F6;
+    --surface-2: #FFFFFF; --text-primary: #1A1D21; --text-secondary: #5B6270; --text-muted: #8A9099;
+    --warning: #854F0B; --warning-bg: #FAEEDA; --danger: #A32D2D;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background: var(--surface-0); color: var(--text-primary); }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 24px 20px 60px; }
+
+  .header { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; background: var(--surface-1); border-radius: 12px; margin-bottom: 18px; }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .logo { width: 40px; height: 40px; border-radius: 8px; background: var(--accent-bg); color: var(--accent); font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+  .title { font-size: 18px; font-weight: 600; }
+  .subtitle { font-size: 12px; color: var(--text-secondary); }
+  .header-right { display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--text-muted); }
+  .badge { font-size: 10px; padding: 3px 9px; border-radius: 10px; background: var(--accent-bg); color: var(--accent); font-weight: 600; }
+
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+  .metrics.two { grid-template-columns: repeat(2, 1fr); }
+  .metric { background: var(--surface-1); border-radius: 8px; padding: 12px 14px; }
+  .metric .label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+  .metric .value { font-size: 22px; font-weight: 600; }
+
+  .card { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; background: var(--surface-2); }
+  .card-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface-1); flex-wrap: wrap; gap: 8px; }
+  .card-head .name { font-size: 13px; font-weight: 600; }
+  .card-note { font-size: 10px; color: var(--text-muted); }
+
+  .tabs { display: flex; gap: 6px; }
+  .tab { font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); color: var(--text-muted); background: var(--surface-2); cursor: pointer; user-select: none; }
+  .tab:hover { border-color: var(--border-strong); }
+  .tab.active { border-color: var(--navy); color: var(--navy); background: var(--surface-2); font-weight: 600; }
+
+  .filters { display: flex; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .filters select, .filters input[type="text"] {
+    font-size: 12px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-primary); font-family: inherit;
+  }
+  .filters input[type="text"] { flex: 1; min-width: 160px; }
+  .range-filter { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; background: var(--surface-2); }
+  .range-filter input[type="range"] { width: 80px; }
+  .range-filter span { font-size: 11px; color: var(--text-muted); min-width: 22px; }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead th { text-align: left; font-size: 11px; color: var(--text-muted); font-weight: 600; padding: 8px 16px; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; white-space: nowrap; }
+  thead th:hover { color: var(--text-primary); }
+  thead th .sort-icon { font-size: 10px; margin-left: 3px; opacity: 0.5; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--navy); }
+  tbody tr { border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
+  tbody tr:hover { background: var(--surface-1); }
+  tbody tr.history-row { cursor: default; }
+  tbody tr.history-row:hover { background: transparent; }
+  td { padding: 10px 16px; font-size: 12px; vertical-align: middle; }
+  .case-title { font-size: 12px; color: var(--text-primary); font-weight: 500; }
+  .case-meta { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+  .pill { font-size: 10px; padding: 2px 9px; border-radius: 10px; border: 1px solid var(--border-strong); color: var(--text-secondary); display: inline-block; margin: 1px 3px 1px 0; background: var(--surface-1); }
+  .pill.flag { border-color: var(--warning); color: var(--warning); background: var(--warning-bg); }
+
+  .avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--accent-bg); color: var(--accent); font-size: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+  .avatar.unassigned { background: var(--surface-1); color: var(--text-muted); border: 1px dashed var(--border-strong); }
+
+  .chevron { color: var(--text-muted); text-align: right; }
+
+  .footnote { padding: 8px 16px; font-size: 10px; color: var(--text-muted); background: var(--surface-2); }
+
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(20,22,26,0.45); align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+  .overlay.open { display: flex; }
+  .modal { width: 100%; max-width: 460px; background: var(--surface-2); border-radius: 12px; border: 1px solid var(--border); padding: 18px 20px; box-shadow: 0 12px 40px rgba(0,0,0,0.18); }
+  .modal-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 12px; }
+  .modal-title { font-size: 15px; font-weight: 600; }
+  .modal-close { cursor: pointer; color: var(--text-muted); font-size: 18px; line-height: 1; background: none; border: none; padding: 0; }
+  .modal-sub { font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
+  .modal-section { font-size: 11px; color: var(--text-muted); margin: 10px 0 4px; font-weight: 600; }
+  .modal-line { height: 8px; background: var(--border); border-radius: 3px; margin-bottom: 6px; }
+  .modal-source { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--accent); margin-top: 10px; }
+  .modal-confidence { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--warning); margin-top: 6px; }
+  .modal-actions { display: flex; gap: 8px; align-items: center; margin-top: 16px; flex-wrap: wrap; }
+  .btn { font-size: 12px; padding: 7px 13px; border-radius: 6px; cursor: pointer; font-weight: 500; font-family: inherit; }
+  .btn-primary { background: var(--navy); color: #fff; border: 1px solid var(--navy); }
+  .btn-primary:hover { background: var(--navy-dark); }
+  .btn-ghost { background: var(--surface-2); color: var(--text-secondary); border: 1px solid var(--border-strong); }
+  .btn-ghost:hover { background: var(--surface-1); }
+  .modal-hint { font-size: 10px; color: var(--text-muted); margin-top: 6px; width: 100%; }
+
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--navy); color: #fff; font-size: 13px; padding: 10px 18px; border-radius: 8px; opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 60; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .empty { padding: 24px 16px; text-align: center; font-size: 12px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">JL</div>
+      <div>
+        <div class="title">Case Desk Portal</div>
+        <div class="subtitle">Justice Lens UK — Court Judgment Triage and Review</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="badge">MVP</span>
+      <span><i class="ti ti-refresh"></i> Live · last refreshed 09:41</span>
+    </div>
+  </div>
+
+  <div class="metrics" id="triageMetrics">
+    <div class="metric"><div class="label">Total in Queue</div><div class="value" id="mTotal">–</div></div>
+    <div class="metric"><div class="label">Added Today</div><div class="value">5</div></div>
+    <div class="metric"><div class="label">Oldest Waiting</div><div class="value">3 days</div></div>
+    <div class="metric"><div class="label">Sent to Deep Dive (7d)</div><div class="value">9</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="name" id="cardTitle">Triage Queue</div>
+      <div class="tabs">
+        <div class="tab active" data-tab="triage" onclick="switchTab('triage')">Triage Queue</div>
+        <div class="tab" data-tab="review" onclick="switchTab('review')">Senior Review</div>
+        <div class="tab" data-tab="history" onclick="switchTab('history')">History</div>
+      </div>
+    </div>
+
+    <div class="filters" id="filters-triage">
+      <select id="fTopic" onchange="renderTriage()">
+        <option value="">Topic: All</option>
+        <option>Housing</option><option>Employment</option><option>Environmental</option>
+      </select>
+      <select id="fCourt" onchange="renderTriage()">
+        <option value="">Court: All</option>
+        <option>Admin Court</option><option>EAT</option>
+      </select>
+      <select id="fOwner" onchange="renderTriage()">
+        <option value="">Owner: Anyone</option>
+        <option>Ben</option><option value="unassigned">Unassigned</option>
+      </select>
+      <select id="fAdded" onchange="renderTriage()">
+        <option value="">Added: Any Time</option>
+        <option value="1">Added: Last 24 Hours</option>
+        <option value="7">Added: Last 7 Days</option>
+        <option value="30">Added: Last 30 Days</option>
+      </select>
+      <div class="range-filter">
+        <label for="fRelevance">Relevance ≥</label>
+        <input type="range" id="fRelevance" min="0" max="1" step="0.1" value="0" oninput="onRelevanceChange()">
+        <span id="fRelevanceOut">0.0</span>
+      </div>
+      <input type="text" id="fSearch" placeholder="Search cases" oninput="renderTriage()">
+    </div>
+
+    <table id="triageTable" style="display:table;">
+      <thead>
+        <tr>
+          <th onclick="sortTriage('title')">Case <i class="ti ti-arrows-sort sort-icon"></i></th>
+          <th>Keywords</th>
+          <th onclick="sortTriage('relevance')">Relevance + Why <i class="ti ti-arrows-sort sort-icon"></i></th>
+          <th>Owner</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="triageBody"></tbody>
+    </table>
+    <div class="footnote">Click anywhere on a row to open the case. Deep dive / reject live inside that pop-up, not on the row.</div>
+
+    <div class="filters" id="filters-review" style="display:none;">
+      <select id="fFlagged" onchange="renderReview()">
+        <option value="">Flagged Only: No</option>
+        <option value="yes">Flagged Only: Yes</option>
+      </select>
+      <select id="fOwner2" onchange="renderReview()">
+        <option value="">Owner: Anyone</option>
+        <option>Ben</option><option value="unassigned">Unassigned</option>
+      </select>
+      <select id="fWaiting" onchange="renderReview()">
+        <option value="">Waiting: Any Time</option>
+        <option value="Today">Waiting: Today</option>
+        <option value="Yesterday">Waiting: Yesterday</option>
+        <option value="Older">Waiting: Older</option>
+      </select>
+    </div>
+    <table id="reviewTable" style="display:none;">
+      <thead>
+        <tr>
+          <th onclick="sortReview()">Case + Draft <i class="ti ti-arrows-sort sort-icon"></i></th>
+          <th>Extraction Summary</th>
+          <th>Guardrail Checks</th>
+          <th>Owner</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="reviewBody"></tbody>
+    </table>
+
+    <div class="filters" id="filters-history" style="display:none;">
+      <select id="fHCase" onchange="renderHistory()">
+        <option value="">Case: All</option>
+      </select>
+      <select id="fHActor" onchange="renderHistory()">
+        <option value="">Actor: All</option>
+        <option>System</option><option>Ben</option>
+      </select>
+      <select id="fHAction" onchange="renderHistory()">
+        <option value="">Action: All</option>
+        <option>Ingested</option><option>Pass-1 scored</option><option>Auto-filtered</option>
+        <option>Rejected</option><option>Sent to deep dive</option><option>Approved</option>
+      </select>
+      <select id="fHDate" onchange="renderHistory()">
+        <option value="">Date Range: All</option>
+        <option value="Today">Today</option>
+        <option value="Yesterday">Yesterday</option>
+        <option value="Older">Older</option>
+      </select>
+    </div>
+    <table id="historyTable" style="display:none;">
+      <thead>
+        <tr><th>Timestamp</th><th>Case</th><th>Actor</th><th>Action</th><th>Detail</th></tr>
+      </thead>
+      <tbody id="historyBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this) closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">Case title</div>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-sub">Case Detail Pop-Up — the one place decisions happen</div>
+    <div class="modal-line" style="width:95%"></div>
+    <div class="modal-line" style="width:88%"></div>
+    <div class="modal-line" style="width:60%"></div>
+    <div class="modal-section">Facts · Issue · Key Quotes · Terms Flagged · Wider Relevance</div>
+    <div class="modal-line" style="width:92%"></div>
+    <div class="modal-line" style="width:70%"></div>
+    <div class="modal-source"><i class="ti ti-external-link"></i><span id="modalSource">Source: [2026] EWHC 412 (Admin) — Find Case Law ↗</span></div>
+    <div class="modal-confidence"><i class="ti ti-alert-triangle"></i><span>AI Confidence: Medium — one quote unverified, flagged for review</span></div>
+    <div class="modal-actions" id="modalActions">
+      <button class="btn btn-primary" onclick="actionCase('deepdive')">Send to Deep Dive</button>
+      <button class="btn btn-ghost" onclick="actionCase('reject')">Reject</button>
+      <button class="btn btn-ghost" onclick="viewAudit()"><i class="ti ti-history" style="margin-right:4px;"></i>View Audit Trail</button>
+      <div class="avatar" id="modalAvatar" title="Assigned to Ben">BW</div>
+      <div class="modal-hint">Opens History, pre-filtered to this case.</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const TODAY = new Date("2026-07-15");
+
+let triageCases = [
+  { title: "R (Smith) v Local Housing Authority", meta: "Admin Court · 12 Jul 2026", date: "2026-07-12", court: "Admin Court", topic: "Housing", keywords: ["housing","possession"], relevance: 0.86, why: "court + keyword match", owner: "Ben" },
+  { title: "Jones v Retail Co Ltd", meta: "EAT · 11 Jul 2026", date: "2026-07-11", court: "EAT", topic: "Employment", keywords: ["employment","dismissal"], relevance: 0.79, why: "keyword match, ranked", owner: null },
+  { title: "Re Planning Appeal (Greenfield Site)", meta: "Admin Court · 10 Jul 2026", date: "2026-07-10", court: "Admin Court", topic: "Environmental", keywords: ["planning","environmental"], relevance: 0.71, why: "court match only", owner: null },
+  { title: "R (Osei) v Housing Benefit Panel", meta: "Admin Court · 14 Jul 2026", date: "2026-07-14", court: "Admin Court", topic: "Housing", keywords: ["housing","benefit"], relevance: 0.62, why: "keyword match only", owner: null },
+];
+
+let reviewCases = [
+  { title: "Jones v Retail Co Ltd — draft ready", summary: "Unfair dismissal, tribunal upheld claim", flag: "none flagged", flagged: false, owner: "Ben", waiting: "Yesterday" },
+  { title: "Re Planning Appeal — draft ready", summary: "Judicial review dismissed, costs order", flag: "distressing content", flagged: true, owner: null, waiting: "Today" },
+];
+
+let historyLog = [
+  { ts: "09:12", day: "Today", case: "R (Smith) v Local Housing Authority", actor: "System", action: "Ingested", detail: "New judgment matched Admin Court filter" },
+  { ts: "09:13", day: "Today", case: "R (Smith) v Local Housing Authority", actor: "System", action: "Pass-1 scored", detail: "Relevance 0.86 — court + keyword match" },
+  { ts: "08:47", day: "Today", case: "Re Retail Contract Dispute", actor: "System", action: "Auto-filtered", detail: "Court not in scope (Commercial Court)" },
+  { ts: "Yesterday", day: "Yesterday", case: "Doe v Council Planning Dept", actor: "Ben", action: "Rejected", detail: "Duplicate of case reviewed last week" },
+  { ts: "Yesterday", day: "Yesterday", case: "Jones v Retail Co Ltd", actor: "Ben", action: "Sent to deep dive", detail: "Approved at Checkpoint 1" },
+  { ts: "Yesterday", day: "Yesterday", case: "Jones v Retail Co Ltd", actor: "Ben", action: "Approved", detail: "Checkpoint 2 — no issues found" },
+  { ts: "12 Jul", day: "Older", case: "R (Smith) v Local Housing Authority", actor: "System", action: "Ingested", detail: "Backfilled example — older entry" },
+];
+
+let triageSort = { key: null, dir: 1 };
+let historyCaseFilter = "";
+let activeCase = null;
+let activeCaseType = null;
+
+function initials(name) { return name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2); }
+
+function avatarHtml(owner) {
+  if (owner) return `<div class="avatar" title="Assigned to ${owner}">${initials(owner)}</div>`;
+  return `<div class="avatar unassigned" title="Unassigned"><i class="ti ti-user"></i></div>`;
+}
+
+function renderTriage() {
+  const topic = document.getElementById('fTopic').value;
+  const court = document.getElementById('fCourt').value;
+  const owner = document.getElementById('fOwner').value;
+  const search = document.getElementById('fSearch').value.toLowerCase();
+  const addedDays = document.getElementById('fAdded').value;
+  const minRelevance = parseFloat(document.getElementById('fRelevance').value);
+
+  let rows = triageCases.filter(c => {
+    if (topic && c.topic !== topic) return false;
+    if (court && c.court !== court) return false;
+    if (owner === 'unassigned' && c.owner) return false;
+    if (owner && owner !== 'unassigned' && c.owner !== owner) return false;
+    if (search && !c.title.toLowerCase().includes(search)) return false;
+    if (addedDays) {
+      const ageDays = (TODAY - new Date(c.date)) / 86400000;
+      if (ageDays > parseInt(addedDays, 10)) return false;
+    }
+    if (c.relevance < minRelevance) return false;
+    return true;
+  });
+
+  if (triageSort.key) {
+    rows = rows.slice().sort((a,b) => {
+      let av = triageSort.key === 'relevance' ? a.relevance : a.title.toLowerCase();
+      let bv = triageSort.key === 'relevance' ? b.relevance : b.title.toLowerCase();
+      if (av < bv) return -1 * triageSort.dir;
+      if (av > bv) return 1 * triageSort.dir;
+      return 0;
+    });
+  }
+
+  document.getElementById('mTotal').textContent = triageCases.length;
+
+  const body = document.getElementById('triageBody');
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="5" class="empty">No cases match the current filters.</td></tr>`;
+    return;
+  }
+  body.innerHTML = rows.map((c, idx) => `
+    <tr onclick="openCase('triage', '${encodeURIComponent(c.title)}')">
+      <td><div class="case-title">${c.title}</div><div class="case-meta">${c.meta}</div></td>
+      <td>${c.keywords.map(k => `<span class="pill">${k}</span>`).join("")}</td>
+      <td>${c.relevance.toFixed(2)} — ${c.why}</td>
+      <td>${avatarHtml(c.owner)}</td>
+      <td class="chevron"><i class="ti ti-chevron-right"></i></td>
+    </tr>`).join("");
+}
+
+function onRelevanceChange() {
+  document.getElementById('fRelevanceOut').textContent = parseFloat(document.getElementById('fRelevance').value).toFixed(1);
+  renderTriage();
+}
+
+function sortTriage(key) {
+  if (triageSort.key === key) triageSort.dir *= -1; else { triageSort.key = key; triageSort.dir = 1; }
+  document.querySelectorAll('#triageTable thead th').forEach(th => th.classList.remove('sorted'));
+  event.currentTarget.classList.add('sorted');
+  renderTriage();
+}
+
+function renderReview() {
+  const flaggedOnly = document.getElementById('fFlagged').value === 'yes';
+  const owner = document.getElementById('fOwner2').value;
+  const waiting = document.getElementById('fWaiting').value;
+  let rows = reviewCases.filter(c => {
+    if (flaggedOnly && !c.flagged) return false;
+    if (owner === 'unassigned' && c.owner) return false;
+    if (owner && owner !== 'unassigned' && c.owner !== owner) return false;
+    if (waiting && c.waiting !== waiting) return false;
+    return true;
+  });
+  const body = document.getElementById('reviewBody');
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="5" class="empty">No cases match the current filters.</td></tr>`;
+    return;
+  }
+  body.innerHTML = rows.map(c => `
+    <tr onclick="openCase('review', '${encodeURIComponent(c.title)}')">
+      <td><div class="modal-line" style="width:80%;"></div><div class="modal-line" style="width:50%;"></div></td>
+      <td>${c.summary}</td>
+      <td><span class="pill ${c.flagged ? 'flag' : ''}">${c.flag}</span></td>
+      <td>${avatarHtml(c.owner)}</td>
+      <td class="chevron"><i class="ti ti-chevron-right"></i></td>
+    </tr>`).join("");
+}
+
+function sortReview() {
+  reviewCases = reviewCases.slice().reverse();
+  renderReview();
+}
+
+function populateHistoryCaseFilter() {
+  const sel = document.getElementById('fHCase');
+  const cases = [...new Set(historyLog.map(h => h.case))];
+  sel.innerHTML = `<option value="">Case: All</option>` + cases.map(c => `<option>${c}</option>`).join("");
+}
+
+function renderHistory() {
+  const caseFilter = document.getElementById('fHCase').value || historyCaseFilter;
+  const actorFilter = document.getElementById('fHActor').value;
+  const actionFilter = document.getElementById('fHAction').value;
+  const dateFilter = document.getElementById('fHDate').value;
+  let rows = historyLog.filter(h => {
+    if (caseFilter && h.case !== caseFilter) return false;
+    if (actorFilter && h.actor !== actorFilter) return false;
+    if (actionFilter && h.action.toLowerCase() !== actionFilter.toLowerCase()) return false;
+    if (dateFilter && h.day !== dateFilter) return false;
+    return true;
+  });
+  const body = document.getElementById('historyBody');
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="5" class="empty">No audit entries match the current filters.</td></tr>`;
+    return;
+  }
+  body.innerHTML = rows.map(h => `
+    <tr class="history-row">
+      <td style="color:var(--text-muted);">${h.ts}</td>
+      <td>${h.case}</td>
+      <td>${h.actor}</td>
+      <td>${h.action}</td>
+      <td style="color:var(--text-secondary);">${h.detail}</td>
+    </tr>`).join("");
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.getElementById('triageTable').style.display = tab === 'triage' ? 'table' : 'none';
+  document.getElementById('reviewTable').style.display = tab === 'review' ? 'table' : 'none';
+  document.getElementById('historyTable').style.display = tab === 'history' ? 'table' : 'none';
+  document.getElementById('filters-triage').style.display = tab === 'triage' ? 'flex' : 'none';
+  document.getElementById('filters-review').style.display = tab === 'review' ? 'flex' : 'none';
+  document.getElementById('filters-history').style.display = tab === 'history' ? 'flex' : 'none';
+  document.querySelector('.footnote').style.display = tab === 'triage' ? 'block' : 'none';
+  document.getElementById('triageMetrics').style.display = tab === 'triage' ? 'grid' : 'none';
+  document.getElementById('reviewMetrics') && (document.getElementById('reviewMetrics').style.display = tab === 'review' ? 'grid' : 'none');
+  document.getElementById('cardTitle').textContent = tab === 'triage' ? 'Triage Queue' : tab === 'review' ? 'Senior Review — Worklist' : 'History — Full Audit Trail';
+  if (tab === 'history') { historyCaseFilter = ""; document.getElementById('fHCase').value = ""; renderHistory(); }
+}
+
+function openCase(type, encodedTitle) {
+  const title = decodeURIComponent(encodedTitle);
+  activeCase = title;
+  activeCaseType = type;
+  document.getElementById('modalTitle').textContent = title;
+  const owner = (type === 'triage' ? triageCases : reviewCases).find(c => c.title === title)?.owner;
+  document.getElementById('modalAvatar').outerHTML = avatarHtml(owner);
+  const actions = document.getElementById('modalActions');
+  if (type === 'triage') {
+    actions.querySelector('.btn-primary').style.display = 'inline-block';
+    actions.querySelector('.btn-primary').textContent = 'Send to Deep Dive';
+  } else {
+    actions.querySelector('.btn-primary').style.display = 'inline-block';
+    actions.querySelector('.btn-primary').textContent = 'Approve';
+  }
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function actionCase(kind) {
+  if (!activeCase) return;
+  const label = kind === 'deepdive' ? 'sent to deep dive' : kind === 'reject' ? 'rejected' : 'approved';
+  historyLog.unshift({ ts: 'Just now', case: activeCase, actor: 'Ben', action: kind === 'deepdive' ? 'Sent to deep dive' : kind === 'reject' ? 'Rejected' : 'Approved', detail: 'Actioned from the case detail pop-up' });
+  if (activeCaseType === 'triage') triageCases = triageCases.filter(c => c.title !== activeCase);
+  if (activeCaseType === 'review') reviewCases = reviewCases.filter(c => c.title !== activeCase);
+  populateHistoryCaseFilter();
+  renderTriage(); renderReview(); renderHistory();
+  showToast(`Case ${label}.`);
+  closeModal();
+}
+
+function viewAudit() {
+  const caseTitle = activeCase;
+  closeModal();
+  historyCaseFilter = caseTitle;
+  switchTab('history');
+  populateHistoryCaseFilter();
+  document.getElementById('fHCase').value = caseTitle;
+  renderHistory();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+populateHistoryCaseFilter();
+renderTriage();
+renderReview();
+renderHistory();
+</script>
+</body>
+</html>
